@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Writing Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    [data-theme="dark"] {
+      --bg:       #0f0f0f;
+      --surface:  #181818;
+      --surface2: #202020;
+      --border:   #2a2a2a;
+      --bhover:   #3a3a3a;
+      --text:     #e8e8e0;
+      --muted:    #666;
+      --accent:   #3dd668;
+      --warn:     #e8a03a;
+      --danger:   #e05555;
+      --tbg:      #222;
+      --tborder:  #333;
+      --ticon:    #888;
+      --cempty:   #1a1a1a;
+      --s1:#0d2b1a;--s2:#145228;--s3:#1e7a3a;--s4:#28a84e;--s5:#3dd668;
+      --strip-on: #3dd66860;
+      --strip-off:#1e1e1e;
+    }
+    [data-theme="light"] {
+      --bg:       #f6f5f0;
+      --surface:  #ffffff;
+      --surface2: #f0efe9;
+      --border:   #e0ddd5;
+      --bhover:   #c8c5bc;
+      --text:     #1a1a18;
+      --muted:    #999;
+      --accent:   #2d7a3a;
+      --warn:     #b86a10;
+      --danger:   #c0392b;
+      --tbg:      #e8e6e0;
+      --tborder:  #d0cdc6;
+      --ticon:    #666;
+      --cempty:   #eceae4;
+      --s1:#eaf3de;--s2:#c0dd97;--s3:#97c459;--s4:#639922;--s5:#3b6d11;
+      --strip-on: #63992260;
+      --strip-off:#e4e2dc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 2.5rem 1.5rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header-left h1 {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .header-left p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    .updated {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    #theme-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--tborder);
+      background: var(--tbg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.15s, background 0.2s;
+    }
+
+    #theme-toggle:hover { border-color: var(--bhover); }
+
+    #theme-toggle svg {
+      width: 15px; height: 15px;
+      stroke: var(--ticon); fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    [data-theme="dark"]  .icon-sun  { display: none; }
+    [data-theme="dark"]  .icon-moon { display: block; }
+    [data-theme="light"] .icon-sun  { display: block; }
+    [data-theme="light"] .icon-moon { display: none; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 2.5rem 4rem; }
+
+    .section { margin-bottom: 3rem; }
+
+    .section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── HEATMAP ── */
+    .heatmap-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .month-row { display: flex; gap: 3px; margin-bottom: 4px; }
+
+    .month-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      width: 13px;
+      text-align: center;
+      flex-shrink: 0;
+      overflow: visible;
+      white-space: nowrap;
+    }
+
+    .heatmap-grid { display: flex; gap: 3px; }
+    .week-col { display: flex; flex-direction: column; gap: 3px; }
+
+    .day-cell {
+      width: 13px; height: 13px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      transition: opacity 0.1s;
+    }
+
+    .day-cell:hover { opacity: 0.7; }
+
+    .legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; justify-content: flex-end; }
+    .legend span { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+    .legend-cell { width: 13px; height: 13px; border-radius: 2px; }
+
+    /* ── LEADERBOARD ── */
+    .leaderboard { display: flex; flex-direction: column; gap: 6px; }
+
+    .rank-row {
+      display: grid;
+      grid-template-columns: 28px 36px 1fr auto 64px;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.15s;
+    }
+
+    .rank-row:hover { border-color: var(--bhover); }
+    .rank-row.rank-1 { border-color: var(--accent); }
+    .rank-row.rank-1 .rank-num { color: var(--accent); }
+    .rank-row.rank-1 .score-val { color: var(--accent); }
+
+    .rank-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 14px; color: var(--text); }
+
+    .user-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .activity-strip { display: flex; gap: 2px; align-items: center; }
+
+    .abox {
+      width: 7px; height: 16px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    .score-block { text-align: right; }
+
+    .score-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .score-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── BADGES ── */
+    .badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    .badge-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .badge-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .badge-name { font-size: 15px; color: var(--text); margin-bottom: 2px; }
+    .badge-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); }
+
+    /* ── ALERTS ── */
+    .alert-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .alert-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0 6px 6px 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+    }
+
+    .alert-row.warn { border-left: 3px solid var(--warn); }
+    .alert-row.danger { border-left: 3px solid var(--danger); }
+
+    .alert-days-warn   { color: var(--warn); min-width: 64px; }
+    .alert-days-danger { color: var(--danger); min-width: 64px; }
+    .alert-who { color: var(--muted); }
+
+    .all-good {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      padding: 10px 0;
+    }
+
+    .error-note {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--danger);
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    /* ── SCORING NOTE ── */
+    .scoring-note {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.8;
+    }
+
+    #loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    #app { display: none; }
+
+    @media (max-width: 600px) {
+      .badges { grid-template-columns: 1fr; }
+      .rank-row { grid-template-columns: 24px 32px 1fr 56px; }
+      .activity-strip { display: none; }
+      header { padding: 1.25rem 1.25rem 1rem; }
+      main { padding: 1.5rem 1.25rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">loading data.json…</div>
+
+<div id="app">
+  <header>
+    <div class="header-left">
+      <h1 id="dash-title">Professional Project Writing Dashboard</h1>
+      <p id="dash-semester"></p>
+    </div>
+    <div class="header-right">
+      <div class="updated" id="updated"></div>
+      <button id="theme-toggle" aria-label="Toggle light/dark mode" onclick="toggleTheme()">
+        <svg class="icon-moon" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="section">
+      <div class="section-title">Team activity — last 26 weeks</div>
+      <div class="heatmap-wrap">
+        <div class="month-row" id="month-labels"></div>
+        <div class="heatmap-grid" id="heatmap"></div>
+        <div class="legend">
+          <span>less</span>
+          <div class="legend-cell" id="lc1"></div>
+          <div class="legend-cell" id="lc2"></div>
+          <div class="legend-cell" id="lc3"></div>
+          <div class="legend-cell" id="lc4"></div>
+          <div class="legend-cell" id="lc5"></div>
+          <span>more</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Rankings</div>
+      <div class="scoring-note" id="scoring-note"></div>
+      <div class="leaderboard" id="leaderboard"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Highlights</div>
+      <div class="badges" id="badges"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Alerts</div>
+      <div class="alert-list" id="alerts"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const POINTS_PER_GAP = 100 / 9;  // ~11.11 — perfect score over 90 days = 9 ideal gaps
+
+const PALETTE = {
+  dark: {
+    empty: '#1a1a1a',
+    scale: ['#0d2b1a','#145228','#1e7a3a','#28a84e','#3dd668'],
+    stripOn: '#3dd66860', stripOff: '#1e1e1e',
+    av: [['#1a3a2a','#3dd668'],['#1a2a3a','#3d9dd6'],['#3a2a1a','#d69d3d'],
+         ['#2a1a3a','#9d3dd6'],['#1a3a3a','#3dd6d6'],['#3a1a2a','#d63d9d']]
+  },
+  light: {
+    empty: '#eceae4',
+    scale: ['#eaf3de','#c0dd97','#97c459','#639922','#3b6d11'],
+    stripOn: '#63992260', stripOff: '#e4e2dc',
+    av: [['#e1f5ee','#085041'],['#e6f1fb','#0c447c'],['#faeeda','#633806'],
+         ['#eeedfe','#3c3489'],['#e1f5f5','#0a4444'],['#fbeaf0','#72243e']]
+  }
+};
+
+let DATA = null;
+
+// ── SCORING ──────────────────────────────────────────────────────────────────
+
+function scoreGap(gap) {
+  if (gap <= 10) return POINTS_PER_GAP;
+  if (gap <= 13) return POINTS_PER_GAP * 0.4;
+  return 0;
+}
+
+function calcScore(student) {
+  const { gaps, days_since_last } = student;
+
+  // No commits yet
+  if (!gaps || gaps.length === 0) return 0;
+
+  const raw = gaps.reduce((sum, g) => sum + scoreGap(g), 0);
+
+  // Cap at 100
+  let score = Math.min(100, Math.round(raw));
+
+  // Hard cap: no activity in 14+ days
+  if (days_since_last >= 14) score = Math.min(score, 20);
+
+  return score;
+}
+
+// ── SORTING ───────────────────────────────────────────────────────────────────
+
+function sortStudents(students) {
+  return [...students].sort((a, b) => {
+    const sa = calcScore(a), sb = calcScore(b);
+    if (sb !== sa) return sb - sa;
+    // tiebreaker 1: current streak (higher = better)
+    if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
+    // tiebreaker 2: commits in last 30 days (higher = better)
+    if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
+    // tiebreaker 3: avg gap (lower = better)
+    return a.avg_gap - b.avg_gap;
+  });
+}
+
+function tiebreakReason(a, b) {
+  // Returns a short string explaining why a ranks above b (same score)
+  if (a.current_streak !== b.current_streak) return 'streak';
+  if (a.commits_30 !== b.commits_30) return 'commits (30d)';
+  return 'avg gap';
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+
+function theme() { return document.documentElement.getAttribute('data-theme') || 'dark'; }
+function pal()   { return PALETTE[theme()]; }
+
+function toggleTheme() {
+  const next = theme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateLegendColors();
+  if (DATA) {
+    buildHeatmap(DATA.students);
+    buildLeaderboard(DATA.students);
+  }
+}
+
+function updateLegendColors() {
+  const s = pal().scale;
+  for (let i = 1; i <= 5; i++) document.getElementById('lc' + i).style.background = s[i - 1];
+}
+
+// ── HEATMAP ───────────────────────────────────────────────────────────────────
+
+function cellColor(v, max) {
+  const p = pal();
+  if (!v) return p.empty;
+  const t = v / max;
+  if (t < 0.2)  return p.scale[0];
+  if (t < 0.4)  return p.scale[1];
+  if (t < 0.65) return p.scale[2];
+  if (t < 0.85) return p.scale[3];
+  return p.scale[4];
+}
+
+function buildHeatmap(students) {
+  const weeks = 26;
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - (weeks * 7 - 1));
+
+  // Aggregate commit counts per day across all students
+  const dayMap = {};
+  for (const s of students) {
+    if (!s.last30) continue;
+    for (const d of s.last30) {
+      dayMap[d.date] = (dayMap[d.date] || 0) + d.count;
+    }
+  }
+  const maxVal = Math.max(1, ...Object.values(dayMap));
+
+  const grid = document.getElementById('heatmap');
+  grid.innerHTML = '';
+  const monthLabelEl = document.getElementById('month-labels');
+  monthLabelEl.innerHTML = '';
+  let lastMonth = -1;
+
+  for (let w = 0; w < weeks; w++) {
+    const col = document.createElement('div');
+    col.className = 'week-col';
+
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + w * 7 + d);
+      const key = date.toISOString().slice(0, 10);
+      const val = dayMap[key] || 0;
+
+      const cell = document.createElement('div');
+      cell.className = 'day-cell';
+      cell.style.background = cellColor(val, maxVal);
+      cell.title = `${key}: ${val} commit${val !== 1 ? 's' : ''}`;
+      col.appendChild(cell);
+
+      if (d === 0) {
+        const month = date.getMonth();
+        const label = document.createElement('div');
+        label.className = 'month-label';
+        if (month !== lastMonth) { label.textContent = MONTH_NAMES[month]; lastMonth = month; }
+        monthLabelEl.appendChild(label);
+      }
+    }
+    grid.appendChild(col);
+  }
+
+  updateLegendColors();
+}
+
+// ── LEADERBOARD ───────────────────────────────────────────────────────────────
+
+function buildActivityStrip(last30) {
+  const p = pal();
+  return (last30 || []).map(d => {
+    const on = d.count > 0;
+    return `<div class="abox" style="background:${on ? p.stripOn : p.stripOff}" title="${d.date}${on ? ': ' + d.count + ' commit' + (d.count !== 1 ? 's' : '') : ''}"></div>`;
+  }).join('');
+}
+
+function buildLeaderboard(students) {
+  const sorted = sortStudents(students.filter(s => !s.error));
+  const errors = students.filter(s => s.error);
+  const el = document.getElementById('leaderboard');
+  el.innerHTML = '';
+
+  const avColors = pal().av;
+
+  // Build a score map to detect ties
+  const scoreMap = {};
+  sorted.forEach(s => {
+    const sc = calcScore(s);
+    scoreMap[s.name] = sc;
+  });
+
+  sorted.forEach((s, i) => {
+    const [bg, fg] = avColors[students.indexOf(s) % avColors.length];
+    const initials = s.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const score = calcScore(s);
+    const strip = buildActivityStrip(s.last30);
+
+    // Tiebreaker note: shown when this student has the same score as the one below
+    let tieMeta = '';
+    if (i < sorted.length - 1 && calcScore(sorted[i + 1]) === score) {
+      const reason = tiebreakReason(s, sorted[i + 1]);
+      tieMeta = ` · ranked by ${reason}`;
+    }
+
+    const meta = `streak ${s.current_streak}d · ${s.commits_30} commits (30d)${tieMeta}`;
+
+    const row = document.createElement('div');
+    row.className = `rank-row${i === 0 ? ' rank-1' : ''}`;
+    row.innerHTML = `
+      <span class="rank-num">${i + 1}</span>
+      <div class="avatar" style="background:${bg};color:${fg}">${initials}</div>
+      <div>
+        <div class="user-name">${s.name}</div>
+        <div class="user-meta">${meta}</div>
+      </div>
+      <div class="activity-strip">${strip}</div>
+      <div class="score-block">
+        <div class="score-val">${score}</div>
+        <div class="score-label">/ 100</div>
+      </div>
+    `;
+    el.appendChild(row);
+  });
+
+  errors.forEach(s => {
+    const err = document.createElement('div');
+    err.className = 'error-note';
+    err.textContent = `${s.name}: could not fetch data — ${s.error}`;
+    el.appendChild(err);
+  });
+
+  // Scoring explanation note
+  document.getElementById('scoring-note').textContent =
+    'Score: 100 pts over 90 days. Full points per gap ≤10 days · partial (11–13d) · zero (14d+) · capped at 20 if no activity in 14+ days.';
+}
+
+// ── BADGES ────────────────────────────────────────────────────────────────────
+
+function buildBadges(students) {
+  const valid = students.filter(s => !s.error);
+  if (!valid.length) return;
+
+  const scored = valid.map(s => ({ ...s, score: calcScore(s) }));
+  const byScore   = [...scored].sort((a, b) => b.score - a.score)[0];
+  const byStreak  = [...valid].sort((a, b) => b.current_streak - a.current_streak)[0];
+  const byGap     = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
+
+  const badges = [
+    { label: 'Top score',        name: byScore.name,  val: `${byScore.score} pts` },
+    { label: 'Current streak',   name: byStreak.name, val: `${byStreak.current_streak} days` },
+    { label: 'Best avg gap',     name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—' }
+  ];
+
+  const el = document.getElementById('badges');
+  el.innerHTML = '';
+  badges.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'badge-card';
+    card.innerHTML = `
+      <div class="badge-label">${b.label}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-val">${b.val}</div>
+    `;
+    el.appendChild(card);
+  });
+}
+
+// ── ALERTS ────────────────────────────────────────────────────────────────────
+
+function buildAlerts(students) {
+  const el = document.getElementById('alerts');
+  el.innerHTML = '';
+
+  const late = students
+    .filter(s => !s.error && s.days_since_last >= 10)
+    .sort((a, b) => b.days_since_last - a.days_since_last);
+
+  if (!late.length) {
+    el.innerHTML = '<div class="all-good">Everyone has written within the last 10 days.</div>';
+    return;
+  }
+
+  late.forEach(s => {
+    const d = s.days_since_last;
+    const isDanger = d >= 14;
+    const row = document.createElement('div');
+    row.className = `alert-row ${isDanger ? 'danger' : 'warn'}`;
+    row.innerHTML = `
+      <span class="${isDanger ? 'alert-days-danger' : 'alert-days-warn'}">${d}d ago</span>
+      <span class="alert-who">${s.name}</span>
+      ${isDanger ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--danger)">score capped at 20</span>' : ''}
+    `;
+    el.appendChild(row);
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+async function init() {
+  const saved = localStorage.getItem('theme');
+  const preferred = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', preferred);
+
+  try {
+    const res = await fetch('data.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    DATA = await res.json();
+
+    document.getElementById('dash-title').textContent = DATA.title || 'Writing Dashboard';
+    document.getElementById('dash-semester').textContent = DATA.semester || '';
+    if (DATA.generated_at) {
+      const d = new Date(DATA.generated_at);
+      document.getElementById('updated').textContent =
+        `updated ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    buildHeatmap(DATA.students);
+    buildLeaderboard(DATA.students);
+    buildBadges(DATA.students);
+    buildAlerts(DATA.students);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } catch (e) {
+    document.getElementById('loading').textContent =
+      `Could not load data.json — ${e.message}. Has the GitHub Action run yet?`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
