@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-06T09:13:48.646Z",
+  "generated_at": "2026-06-07T08:47:01.177Z",
   "title": "Professional Project Dashboard — Test",
   "semester": "Test Run",
   "students": [
@@ -36,10 +36,6 @@
       "commits_30": 5,
       "last30": [
         {
-          "date": "2026-05-08",
-          "count": 0
-        },
-        {
           "date": "2026-05-09",
           "count": 0
         },
@@ -154,10 +150,14 @@
         {
           "date": "2026-06-06",
           "count": 0
+        },
+        {
+          "date": "2026-06-07",
+          "count": 0
         }
       ],
       "last_commit": "2026-06-05",
-      "days_since_last": 1
+      "days_since_last": 2
     },
     {
       "name": "Test Stretched",
@@ -188,10 +188,6 @@
       "commits_30": 4,
       "last30": [
         {
-          "date": "2026-05-08",
-          "count": 0
-        },
-        {
           "date": "2026-05-09",
           "count": 0
         },
@@ -306,10 +302,14 @@
         {
           "date": "2026-06-06",
           "count": 0
+        },
+        {
+          "date": "2026-06-07",
+          "count": 0
         }
       ],
       "last_commit": "2026-06-04",
-      "days_since_last": 2
+      "days_since_last": 3
     },
     {
       "name": "Test Lapsed",
@@ -334,10 +334,6 @@
       "commits_30": 2,
       "last30": [
         {
-          "date": "2026-05-08",
-          "count": 0
-        },
-        {
           "date": "2026-05-09",
           "count": 0
         },
@@ -452,10 +448,14 @@
         {
           "date": "2026-06-06",
           "count": 0
+        },
+        {
+          "date": "2026-06-07",
+          "count": 0
         }
       ],
       "last_commit": "2026-05-21",
-      "days_since_last": 16
+      "days_since_last": 17
     },
     {
       "name": "Test Sparse",
@@ -476,10 +476,6 @@
       "commits_30": 2,
       "last30": [
         {
-          "date": "2026-05-08",
-          "count": 0
-        },
-        {
           "date": "2026-05-09",
           "count": 0
         },
@@ -594,10 +590,14 @@
         {
           "date": "2026-06-06",
           "count": 0
+        },
+        {
+          "date": "2026-06-07",
+          "count": 0
         }
       ],
       "last_commit": "2026-06-01",
-      "days_since_last": 5
+      "days_since_last": 6
     }
   ]
 }
