@@ -1,8 +1,22 @@
+// scripts/fetch-commits.js
+// Discovers all pp-student-* repos in the org, fetches commit data for each,
+// and writes data.json for the dashboard.
+// Requires: GH_TOKEN env var (read access to org repos).
+
 const https = require('https');
-const fs = require('fs');
+const fs    = require('fs');
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-const token = process.env.GH_TOKEN;
+const token  = process.env.GH_TOKEN;
+const ORG    = config.org;         // "GIP-TRIAD"
+const PREFIX = config.repo_prefix; // "pp-student-"
+
+if (!token) {
+  console.error('GH_TOKEN is not set.');
+  process.exit(1);
+}
+
+// ── GitHub API helper ────────────────────────────────────────────────────────
 
 function githubGet(path) {
   return new Promise((resolve, reject) => {
@@ -11,15 +25,15 @@ function githubGet(path) {
       path,
       headers: {
         'Authorization': `Bearer ${token}`,
-        'User-Agent': 'writing-dashboard',
-        'Accept': 'application/vnd.github+json'
+        'User-Agent':    'writing-dashboard',
+        'Accept':        'application/vnd.github+json'
       }
     };
     let body = '';
     const req = https.get(options, res => {
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        try { resolve(JSON.parse(body)); }
+        try { resolve({ data: JSON.parse(body), headers: res.headers }); }
         catch (e) { reject(new Error(`JSON parse error on ${path}: ${body.slice(0, 200)}`)); }
       });
     });
@@ -27,7 +41,33 @@ function githubGet(path) {
   });
 }
 
-// Fetch all commits for a repo going back 90 days (project duration)
+/** Fetch all pages of a list endpoint. */
+async function githubGetAll(path) {
+  let results = [];
+  let page = 1;
+  while (true) {
+    const sep = path.includes('?') ? '&' : '?';
+    const { data } = await githubGet(`${path}${sep}per_page=100&page=${page}`);
+    if (!Array.isArray(data) || data.length === 0) break;
+    results = results.concat(data);
+    if (data.length < 100) break;
+    page++;
+  }
+  return results;
+}
+
+// ── Repo discovery ────────────────────────────────────────────────────────────
+
+async function discoverStudentRepos() {
+  console.log(`Discovering repos with prefix "${PREFIX}" in org "${ORG}"…`);
+  const repos = await githubGetAll(`/orgs/${ORG}/repos?type=all`);
+  return repos
+    .filter(r => r.name.startsWith(PREFIX))
+    .map(r => `${r.owner.login}/${r.name}`);
+}
+
+// ── Commit helpers (unchanged from original) ──────────────────────────────────
+
 async function fetchAllCommits(repo) {
   const since = new Date();
   since.setDate(since.getDate() - 90);
@@ -37,7 +77,7 @@ async function fetchAllCommits(repo) {
   let all = [];
   while (true) {
     const path = `/repos/${repo}/commits?since=${sinceStr}&per_page=100&page=${page}`;
-    const commits = await githubGet(path);
+    const { data: commits } = await githubGet(path);
     if (!Array.isArray(commits) || commits.length === 0) break;
     all = all.concat(commits);
     if (commits.length < 100) break;
@@ -46,7 +86,6 @@ async function fetchAllCommits(repo) {
   return all;
 }
 
-// Reduce commits to a map of { 'YYYY-MM-DD': count }
 function toDailyMap(commits) {
   const map = {};
   for (const c of commits) {
@@ -56,12 +95,10 @@ function toDailyMap(commits) {
   return map;
 }
 
-// Sorted list of unique days that have at least one commit
 function activeDays(dailyMap) {
   return Object.keys(dailyMap).sort();
 }
 
-// Gaps in days between consecutive active days
 function calcGaps(days) {
   const gaps = [];
   for (let i = 1; i < days.length; i++) {
@@ -71,13 +108,11 @@ function calcGaps(days) {
   return gaps;
 }
 
-// Average gap between consecutive active days (tiebreaker 3)
 function calcAvgGap(gaps) {
   if (gaps.length === 0) return 0;
   return Math.round((gaps.reduce((a, b) => a + b, 0) / gaps.length) * 10) / 10;
 }
 
-// Current streak: consecutive days with at least one commit counting back from today
 function calcStreak(dailyMap) {
   const today = new Date();
   let streak = 0;
@@ -90,20 +125,17 @@ function calcStreak(dailyMap) {
   return streak;
 }
 
-// Total commits in the last 30 days (tiebreaker 2)
 function calcCommits30(dailyMap) {
   const today = new Date();
   let total = 0;
   for (let i = 0; i < 30; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    total += dailyMap[key] || 0;
+    total += dailyMap[d.toISOString().slice(0, 10)] || 0;
   }
   return total;
 }
 
-// Last 30 days as array of { date, count } for the activity strip
 function calcLast30(dailyMap) {
   const result = [];
   const today = new Date();
@@ -116,54 +148,74 @@ function calcLast30(dailyMap) {
   return result;
 }
 
+// ── Display name resolution ───────────────────────────────────────────────────
+
+function buildSlugMap() {
+  const map = {};
+  for (const s of config.students || []) {
+    map[s.slug] = s.name;
+  }
+  return map;
+}
+
+function displayName(repoFullName, slugMap) {
+  const slug = repoFullName.split('/')[1].replace(PREFIX, '');
+  if (slugMap[slug]) return slugMap[slug];
+  return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
 async function main() {
+  const repos   = await discoverStudentRepos();
+  const slugMap = buildSlugMap();
+  console.log(`Found ${repos.length} student repo(s).`);
+
   const output = {
     generated_at: new Date().toISOString(),
-    title: config.title,
+    title:    config.title,
     semester: config.semester,
     students: []
   };
 
-  for (const student of config.students) {
-    console.log(`Fetching: ${student.repo}`);
+  for (const repo of repos) {
+    const name = displayName(repo, slugMap);
+    console.log(`Fetching: ${repo}`);
     try {
-      const commits = await fetchAllCommits(student.repo);
-      const dailyMap = toDailyMap(commits);
-      const days = activeDays(dailyMap);
-      const gaps = calcGaps(days);
-      const last30 = calcLast30(dailyMap);
+      const commits    = await fetchAllCommits(repo);
+      const dailyMap   = toDailyMap(commits);
+      const days       = activeDays(dailyMap);
+      const gaps       = calcGaps(days);
+      const last30     = calcLast30(dailyMap);
       const lastCommit = days.slice(-1)[0] || null;
       const daysSinceLast = lastCommit
         ? Math.floor((new Date() - new Date(lastCommit)) / 86400000)
         : 999;
 
       output.students.push({
-        name: student.name,
-        github_username: student.github_username,
-        // raw data the dashboard needs for scoring + display
-        active_days: days,          // sorted list of YYYY-MM-DD strings with commits
-        gaps,                       // gaps in days between consecutive active days
-        avg_gap: calcAvgGap(gaps),  // tiebreaker 3
-        current_streak: calcStreak(dailyMap),  // tiebreaker 1
-        commits_30: calcCommits30(dailyMap),   // tiebreaker 2
-        last30,                     // for the activity strip
-        last_commit: lastCommit,
+        name,
+        active_days:     days,
+        gaps,
+        avg_gap:         calcAvgGap(gaps),
+        current_streak:  calcStreak(dailyMap),
+        commits_30:      calcCommits30(dailyMap),
+        last30,
+        last_commit:     lastCommit,
         days_since_last: daysSinceLast
       });
 
     } catch (err) {
-      console.error(`Error fetching ${student.repo}: ${err.message}`);
+      console.error(`Error fetching ${repo}: ${err.message}`);
       output.students.push({
-        name: student.name,
-        github_username: student.github_username,
-        error: err.message,
-        active_days: [],
-        gaps: [],
-        avg_gap: 0,
-        current_streak: 0,
-        commits_30: 0,
-        last30: [],
-        last_commit: null,
+        name,
+        error:           err.message,
+        active_days:     [],
+        gaps:            [],
+        avg_gap:         0,
+        current_streak:  0,
+        commits_30:      0,
+        last30:          [],
+        last_commit:     null,
         days_since_last: 999
       });
     }

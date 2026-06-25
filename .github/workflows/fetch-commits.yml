@@ -13,13 +13,12 @@ jobs:
 
     steps:
       - name: Checkout dashboard repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Fetch commits from student repos
         env:
           GH_TOKEN: ${{ secrets.MENTOR_GITHUB_TOKEN }}
-        run: |
-          node scripts/fetch-commits.js
+        run: node scripts/fetch-commits.js
 
       - name: Commit updated data
         run: |
