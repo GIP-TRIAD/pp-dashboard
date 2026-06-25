@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Writing Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     [data-theme="dark"] {
       --bg:       #0f0f0f;
@@ -51,7 +51,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 14px;
       line-height: 1.6;
       min-height: 100vh;
@@ -69,7 +69,7 @@
     }
 
     .header-left h1 {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 1.1rem;
       font-weight: 500;
       color: var(--accent);
@@ -79,13 +79,13 @@
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .header-right { display: flex; align-items: center; gap: 14px; }
 
     .updated {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--muted);
     }
@@ -122,7 +122,7 @@
     .section { margin-bottom: 3rem; }
 
     .section-title {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--muted);
       letter-spacing: 0.08em;
@@ -142,7 +142,7 @@
     .month-row { display: flex; gap: 3px; margin-bottom: 4px; }
 
     .month-label {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--muted);
       width: 13px;
@@ -165,7 +165,7 @@
     .day-cell:hover { opacity: 0.7; }
 
     .legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; justify-content: flex-end; }
-    .legend span { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+    .legend span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
     .legend-cell { width: 13px; height: 13px; border-radius: 2px; }
 
     /* ── LEADERBOARD ── */
@@ -189,7 +189,7 @@
     .rank-row.rank-1 .score-val { color: var(--accent); }
 
     .rank-num {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       color: var(--muted);
       text-align: right;
@@ -199,22 +199,22 @@
       width: 32px; height: 32px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px; font-weight: 500;
       flex-shrink: 0;
     }
 
     .avatar img {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      display: block;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
     }
 
     .user-name { font-size: 14px; color: var(--text); }
 
     .user-meta {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--muted);
       margin-top: 2px;
@@ -231,7 +231,7 @@
     .score-block { text-align: right; }
 
     .score-val {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 18px;
       font-weight: 500;
       color: var(--text);
@@ -239,7 +239,7 @@
     }
 
     .score-label {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--muted);
       margin-top: 2px;
@@ -256,7 +256,7 @@
     }
 
     .badge-label {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--muted);
       letter-spacing: 0.06em;
@@ -265,7 +265,7 @@
     }
 
     .badge-name { font-size: 15px; color: var(--text); margin-bottom: 2px; }
-    .badge-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); }
+    .badge-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
 
     /* ── ALERTS ── */
     .alert-list { display: flex; flex-direction: column; gap: 6px; }
@@ -278,7 +278,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 0 6px 6px 0;
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
     }
 
@@ -290,14 +290,14 @@
     .alert-who { color: var(--muted); }
 
     .all-good {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       color: var(--accent);
       padding: 10px 0;
     }
 
     .error-note {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--danger);
       padding: 8px 14px;
@@ -309,7 +309,7 @@
 
     /* ── SCORING NOTE ── */
     .scoring-note {
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--muted);
       margin-bottom: 1.25rem;
@@ -321,7 +321,7 @@
       align-items: center;
       justify-content: center;
       min-height: 60vh;
-      font-family: 'DM Mono', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       color: var(--muted);
     }
@@ -685,7 +685,7 @@ function buildAlerts(students) {
     row.innerHTML = `
       <span class="${isDanger ? 'alert-days-danger' : 'alert-days-warn'}">${d}d ago</span>
       <span class="alert-who">${s.name}</span>
-      ${isDanger ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--danger)">score capped at 20</span>' : ''}
+      ${isDanger ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--danger)">score capped at 20</span>' : ''}
     `;
     el.appendChild(row);
   });
