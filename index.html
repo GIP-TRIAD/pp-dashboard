@@ -428,8 +428,8 @@ let DATA = null;
 // ── SCORING ──────────────────────────────────────────────────────────────────
 
 function scoreGap(gap) {
-  if (gap <= 10) return POINTS_PER_GAP;
-  if (gap <= 13) return POINTS_PER_GAP * 0.4;
+  if (gap <= 7) return POINTS_PER_GAP;
+  if (gap <= 10) return POINTS_PER_GAP * 0.4;
   return 0;
 }
 
@@ -628,7 +628,7 @@ function buildLeaderboard(students) {
 
   // Scoring explanation note
   document.getElementById('scoring-note').textContent =
-    'Score: 100 pts over 90 days. Full points per gap ≤10 days · partial (11–13d) · zero (14d+) · capped at 20 if no activity in 14+ days.';
+    'Score: 100 pts over 90 days. Full points for gaps ≤7 days · partial (8–10d) · zero (11d+) · capped at 20 if no activity in 14+ days.';
 }
 
 // ── BADGES ────────────────────────────────────────────────────────────────────
