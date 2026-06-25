@@ -204,6 +204,13 @@
       flex-shrink: 0;
     }
 
+    .avatar img {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
     .user-name { font-size: 14px; color: var(--text); }
 
     .user-meta {
@@ -579,6 +586,9 @@ function buildLeaderboard(students) {
   sorted.forEach((s, i) => {
     const [bg, fg] = avColors[students.indexOf(s) % avColors.length];
     const initials = s.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const avatarHtml = s.avatar_url
+    ? `<img src="${s.avatar_url}" alt="${s.name}">`
+    : initials;
     const score = calcScore(s);
     const strip = buildActivityStrip(s.last30);
 
@@ -595,7 +605,7 @@ function buildLeaderboard(students) {
     row.className = `rank-row${i === 0 ? ' rank-1' : ''}`;
     row.innerHTML = `
       <span class="rank-num">${i + 1}</span>
-      <div class="avatar" style="background:${bg};color:${fg}">${initials}</div>
+      <div class="avatar" style="background:${s.avatar_url ? 'transparent' : bg};color:${fg}">${avatarHtml}</div>
       <div>
         <div class="user-name">${s.name}</div>
         <div class="user-meta">${meta}</div>

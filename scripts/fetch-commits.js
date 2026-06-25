@@ -192,8 +192,12 @@ async function main() {
         ? Math.floor((new Date() - new Date(lastCommit)) / 86400000)
         : 999;
 
+      // avatar_url lives on c.author (GitHub user object), not c.commit.author (git metadata)
+      const avatarUrl = commits.find(c => c.author?.avatar_url)?.author.avatar_url || null;
+
       output.students.push({
         name,
+        avatar_url:      avatarUrl,
         active_days:     days,
         gaps,
         avg_gap:         calcAvgGap(gaps),
