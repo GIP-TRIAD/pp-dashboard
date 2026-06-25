@@ -193,7 +193,13 @@ async function main() {
         : 999;
 
       // avatar_url lives on c.author (GitHub user object), not c.commit.author (git metadata)
-      const avatarUrl = commits.find(c => c.author?.avatar_url)?.author.avatar_url || null;
+      // display the avatar of the most frequent author
+      const avatarCounts = {};
+      for (const c of commits) {
+        const url = c.author?.avatar_url;
+        if (url) avatarCounts[url] = (avatarCounts[url] || 0) + 1;
+      }
+      const avatarUrl = Object.entries(avatarCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
       output.students.push({
         name,
