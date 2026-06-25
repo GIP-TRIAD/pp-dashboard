@@ -185,7 +185,7 @@ async function main() {
       const commits    = await fetchAllCommits(repo);
       const dailyMap   = toDailyMap(commits);
       const days       = activeDays(dailyMap);
-      const gaps       = calcGaps(days);
+      const gaps       = calcGaps(days.slice(1));
       const last30     = calcLast30(dailyMap);
       const lastCommit = days.slice(-1)[0] || null;
       const daysSinceLast = lastCommit
