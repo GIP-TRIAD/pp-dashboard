@@ -4,8 +4,8 @@
   "org": "GIP-TRIAD",
   "repo_prefix": "pp-student-",
   "students": [
-    { "name": "Alice", "slug": "alice-dupont"  },
-    { "name": "Bob",   "slug": "bob-martin"    },
-    { "name": "Clara", "slug": "clara-bernard" }
+    { "name": "Alice", "slug": "alice"  },
+    { "name": "Bob",   "slug": "bob"    },
+    { "name": "Clara", "slug": "clara" }
   ]
 }
