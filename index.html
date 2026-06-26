@@ -141,7 +141,7 @@
       align-items: flex-start;
     }
 
-    .heatmap-main { flex: 1; overflow-x: auto; }
+    .heatmap-main { flex: 0 0 auto; overflow-x: auto; }
 
     .month-row { display: flex; gap: 3px; margin-bottom: 4px; }
 
@@ -174,8 +174,8 @@
 
     /* ── MILESTONE TICKER ── */
     .milestone-ticker {
-      width: 180px;
-      flex-shrink: 0;
+      flex: 1;
+      min-width: 120px;
       height: 120px;
       overflow: hidden;
       position: relative;
@@ -447,7 +447,7 @@
   <main>
 
     <div class="section">
-      <div class="section-title">Team activity — last 13 weeks</div>
+      <div class="section-title">Team activity — last 26 weeks</div>
       <div class="heatmap-wrap">
         <div class="heatmap-main">
           <div class="month-row" id="month-labels"></div>
@@ -679,8 +679,7 @@ function cellColor(v, max) {
 }
 
 function buildHeatmap(students) {
-  // Use 13 weeks (91 days ≈ 90-day window) so the grid matches the scoring window
-  const weeks = 13;
+  const weeks = 26;
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - (weeks * 7 - 1));
