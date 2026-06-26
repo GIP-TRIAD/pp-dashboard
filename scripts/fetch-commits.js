@@ -66,9 +66,10 @@ async function discoverStudentRepos() {
     .map(r => `${r.owner.login}/${r.name}`);
 }
 
-// ── Commit helpers (unchanged from original) ──────────────────────────────────
+// ── Commit helpers ────────────────────────────────────────────────────────────
 
-async function fetchAllCommits(repo) {
+// Fetch commits within the 90-day scoring window
+async function fetchRecentCommits(repo) {
   const since = new Date();
   since.setDate(since.getDate() - 90);
   const sinceStr = since.toISOString();
@@ -84,6 +85,12 @@ async function fetchAllCommits(repo) {
     page++;
   }
   return all;
+}
+
+// Fetch total commit count for the repo (all time)
+async function fetchTotalCommits(repo) {
+  const all = await githubGetAll(`/repos/${repo}/commits`);
+  return all.length;
 }
 
 function toDailyMap(commits) {
@@ -182,10 +189,14 @@ async function main() {
     const name = displayName(repo, slugMap);
     console.log(`Fetching: ${repo}`);
     try {
-      const commits    = await fetchAllCommits(repo);
+      const [commits, totalCommits] = await Promise.all([
+        fetchRecentCommits(repo),
+        fetchTotalCommits(repo)
+      ]);
+
       const dailyMap   = toDailyMap(commits);
       const days       = activeDays(dailyMap);
-      const gaps       = calcGaps(days.slice(1));
+      const gaps       = calcGaps(days.slice(1)); // skip first day (template commit)
       const last30     = calcLast30(dailyMap);
       const lastCommit = days.slice(-1)[0] || null;
       const daysSinceLast = lastCommit
@@ -193,7 +204,6 @@ async function main() {
         : 999;
 
       // avatar_url lives on c.author (GitHub user object), not c.commit.author (git metadata)
-      // display the avatar of the most frequent author
       const avatarCounts = {};
       for (const c of commits) {
         const url = c.author?.avatar_url;
@@ -209,6 +219,7 @@ async function main() {
         avg_gap:         calcAvgGap(gaps),
         current_streak:  calcStreak(dailyMap),
         commits_30:      calcCommits30(dailyMap),
+        total_commits:   totalCommits,
         last30,
         last_commit:     lastCommit,
         days_since_last: daysSinceLast
@@ -224,6 +235,7 @@ async function main() {
         avg_gap:         0,
         current_streak:  0,
         commits_30:      0,
+        total_commits:   0,
         last30:          [],
         last_commit:     null,
         days_since_last: 999
