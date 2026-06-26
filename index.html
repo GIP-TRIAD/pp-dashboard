@@ -586,7 +586,7 @@ const MILESTONE_DEFS = [
 ];
 
 // Returns true if the student has committed at least once every 3 days
-// over the last 14 days (2 weeks). Checks that no 3-day window is empty.
+// over the last 28 days (4 weeks). Checks that no 3-day window is empty.
 function isOnARoll(student) {
   if (!student.active_days || student.active_days.length === 0) return false;
   const activeSet = new Set(student.active_days);
@@ -623,9 +623,11 @@ function recentMilestones(students) {
   for (const s of students) {
     if (!s.last_commit) continue;
     if (new Date(s.last_commit) < cutoff) continue;
-    for (const m of earnedMilestones(s)) {
-      items.push({ student: s.name, icon: m.icon, label: m.label });
-    }
+    // Only show the highest (most recently earned) milestone per student
+    const earned = earnedMilestones(s);
+    if (earned.length === 0) continue;
+    const latest = earned[earned.length - 1];
+    items.push({ student: s.name, icon: latest.icon, label: latest.label });
   }
   return items;
 }
