@@ -136,8 +136,12 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 1.5rem;
-      overflow-x: auto;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
     }
+
+    .heatmap-main { flex: 1; overflow-x: auto; }
 
     .month-row { display: flex; gap: 3px; margin-bottom: 4px; }
 
@@ -167,6 +171,51 @@
     .legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; justify-content: flex-end; }
     .legend span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
     .legend-cell { width: 13px; height: 13px; border-radius: 2px; }
+
+    /* ── MILESTONE TICKER ── */
+    .milestone-ticker {
+      width: 180px;
+      flex-shrink: 0;
+      height: 120px;
+      overflow: hidden;
+      position: relative;
+      border-left: 1px solid var(--border);
+      padding-left: 1.25rem;
+    }
+
+    .ticker-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: tickerScroll linear infinite;
+    }
+
+    @keyframes tickerScroll {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    .ticker-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .ticker-item strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .ticker-item .ticker-icon { font-size: 13px; }
+
+    .ticker-empty {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      font-style: italic;
+    }
 
     /* ── LEADERBOARD ── */
     .leaderboard { display: flex; flex-direction: column; gap: 6px; }
@@ -205,10 +254,10 @@
     }
 
     .avatar img {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
     }
 
     .user-name { font-size: 14px; color: var(--text); }
@@ -218,6 +267,36 @@
       font-size: 11px;
       color: var(--muted);
       margin-top: 2px;
+    }
+
+    /* ── MILESTONE BADGES ON ROW ── */
+    .milestone-badges {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .mbadge {
+      font-size: 14px;
+      line-height: 1;
+      cursor: default;
+    }
+
+    .mbadge[title] { cursor: help; }
+
+    /* ── ON A ROLL ── */
+    .on-a-roll {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--warn);
+      border: 1px solid var(--warn);
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0.04em;
     }
 
     .activity-strip { display: flex; gap: 2px; align-items: center; }
@@ -334,6 +413,7 @@
       .activity-strip { display: none; }
       header { padding: 1.25rem 1.25rem 1rem; }
       main { padding: 1.5rem 1.25rem 3rem; }
+      .milestone-ticker { display: none; }
     }
   </style>
 </head>
@@ -367,18 +447,23 @@
   <main>
 
     <div class="section">
-      <div class="section-title">Team activity — last 26 weeks</div>
+      <div class="section-title">Team activity — last 13 weeks</div>
       <div class="heatmap-wrap">
-        <div class="month-row" id="month-labels"></div>
-        <div class="heatmap-grid" id="heatmap"></div>
-        <div class="legend">
-          <span>less</span>
-          <div class="legend-cell" id="lc1"></div>
-          <div class="legend-cell" id="lc2"></div>
-          <div class="legend-cell" id="lc3"></div>
-          <div class="legend-cell" id="lc4"></div>
-          <div class="legend-cell" id="lc5"></div>
-          <span>more</span>
+        <div class="heatmap-main">
+          <div class="month-row" id="month-labels"></div>
+          <div class="heatmap-grid" id="heatmap"></div>
+          <div class="legend">
+            <span>less</span>
+            <div class="legend-cell" id="lc1"></div>
+            <div class="legend-cell" id="lc2"></div>
+            <div class="legend-cell" id="lc3"></div>
+            <div class="legend-cell" id="lc4"></div>
+            <div class="legend-cell" id="lc5"></div>
+            <span>more</span>
+          </div>
+        </div>
+        <div class="milestone-ticker" id="milestone-ticker">
+          <div class="ticker-inner" id="ticker-inner"></div>
         </div>
       </div>
     </div>
@@ -404,7 +489,7 @@
 
 <script>
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const POINTS_PER_GAP = 100 / 9;  // ~11.11 — perfect score over 90 days = 9 ideal gaps
+const POINTS_PER_GAP = 100 / 9;  // ~11.11 — perfect score over 90 days = 9 ideal gaps (~weekly commits)
 
 const PALETTE = {
   dark: {
@@ -428,26 +513,117 @@ let DATA = null;
 // ── SCORING ──────────────────────────────────────────────────────────────────
 
 function scoreGap(gap) {
-  if (gap <= 7) return POINTS_PER_GAP;
+  if (gap <= 7)  return POINTS_PER_GAP;
   if (gap <= 10) return POINTS_PER_GAP * 0.4;
   return 0;
 }
 
 function calcScore(student) {
   const { gaps, days_since_last } = student;
-
-  // No commits yet
   if (!gaps || gaps.length === 0) return 0;
-
   const raw = gaps.reduce((sum, g) => sum + scoreGap(g), 0);
-
-  // Cap at 100
   let score = Math.min(100, Math.round(raw));
-
-  // Hard cap: no activity in 14+ days
   if (days_since_last >= 14) score = Math.min(score, 20);
-
   return score;
+}
+
+// ── MILESTONES ────────────────────────────────────────────────────────────────
+
+// Definition of all milestones.
+// Each has: icon, label, and a check(student) → bool function.
+const MILESTONE_DEFS = [
+  {
+    id:    'first_commit',
+    icon:  '👶',
+    label: 'First commit',
+    check: s => (s.total_commits || 0) >= 1
+  },
+  {
+    id:    'commits_10',
+    icon:  '✏️',
+    label: '10 commits',
+    check: s => (s.total_commits || 0) >= 10
+  },
+  {
+    id:    'commits_25',
+    icon:  '📝',
+    label: '25 commits',
+    check: s => (s.total_commits || 0) >= 25
+  },
+  {
+    id:    'commits_50',
+    icon:  '📚',
+    label: '50 commits',
+    check: s => (s.total_commits || 0) >= 50
+  },
+  {
+    id:    'on_a_roll',
+    icon:  '🔥',
+    label: 'On a roll (4 consecutive weeks)',
+    check: s => isOnARoll(s)
+  },
+  {
+    id:    'score_50',
+    icon:  '⭐',
+    label: 'Reached 50 points',
+    check: s => calcScore(s) >= 50
+  },
+  {
+    id:    'score_100',
+    icon:  '👑',
+    label: 'Perfect score',
+    check: s => calcScore(s) >= 100
+  },
+];
+
+// Returns true if the student has at least 4 consecutive weeks
+// (Mon–Sun buckets) each containing at least one commit, ending this week.
+function isOnARoll(student) {
+  if (!student.active_days || student.active_days.length === 0) return false;
+  const activeSet = new Set(student.active_days);
+
+  // Walk back week by week from the current week
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun … 6=Sat; treat Mon as week start
+  const mondayOffset = (dayOfWeek + 6) % 7;  // days since last Monday
+
+  let consecutiveWeeks = 0;
+  for (let w = 0; w < 4; w++) {
+    let hasCommit = false;
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - mondayOffset - w * 7 + d);
+      if (activeSet.has(date.toISOString().slice(0, 10))) { hasCommit = true; break; }
+    }
+    if (hasCommit) consecutiveWeeks++;
+    else break;
+  }
+  return consecutiveWeeks >= 4;
+}
+
+// Returns array of earned milestone defs for a student.
+function earnedMilestones(student) {
+  return MILESTONE_DEFS.filter(m => m.check(student));
+}
+
+// Returns milestone items earned within the last 30 days, for the ticker.
+// Since we don't store exact earn dates, we approximate:
+// a milestone is "recent" if the student only just crossed its threshold
+// within the data we have — we use last_commit date as a proxy for recency,
+// limiting to students who committed in the last 30 days.
+function recentMilestones(students) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const items = [];
+
+  for (const s of students) {
+    if (!s.last_commit) continue;
+    if (new Date(s.last_commit) < cutoff) continue;
+    for (const m of earnedMilestones(s)) {
+      items.push({ student: s.name, icon: m.icon, label: m.label });
+    }
+  }
+  return items;
 }
 
 // ── SORTING ───────────────────────────────────────────────────────────────────
@@ -456,17 +632,13 @@ function sortStudents(students) {
   return [...students].sort((a, b) => {
     const sa = calcScore(a), sb = calcScore(b);
     if (sb !== sa) return sb - sa;
-    // tiebreaker 1: current streak (higher = better)
     if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
-    // tiebreaker 2: commits in last 30 days (higher = better)
     if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
-    // tiebreaker 3: avg gap (lower = better)
     return a.avg_gap - b.avg_gap;
   });
 }
 
 function tiebreakReason(a, b) {
-  // Returns a short string explaining why a ranks above b (same score)
   if (a.current_streak !== b.current_streak) return 'streak';
   if (a.commits_30 !== b.commits_30) return 'commits (30d)';
   return 'avg gap';
@@ -507,17 +679,18 @@ function cellColor(v, max) {
 }
 
 function buildHeatmap(students) {
-  const weeks = 26;
+  // Use 13 weeks (91 days ≈ 90-day window) so the grid matches the scoring window
+  const weeks = 13;
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - (weeks * 7 - 1));
 
-  // Aggregate commit counts per day across all students
+  // Aggregate commit counts per day across all students using active_days
   const dayMap = {};
   for (const s of students) {
-    if (!s.last30) continue;
-    for (const d of s.last30) {
-      dayMap[d.date] = (dayMap[d.date] || 0) + d.count;
+    if (!s.active_days) continue;
+    for (const day of s.active_days) {
+      dayMap[day] = (dayMap[day] || 0) + 1;
     }
   }
   const maxVal = Math.max(1, ...Object.values(dayMap));
@@ -558,6 +731,33 @@ function buildHeatmap(students) {
   updateLegendColors();
 }
 
+// ── MILESTONE TICKER ──────────────────────────────────────────────────────────
+
+function buildTicker(students) {
+  const items = recentMilestones(students);
+  const inner = document.getElementById('ticker-inner');
+  const ticker = document.getElementById('milestone-ticker');
+
+  if (!items.length) {
+    inner.innerHTML = '';
+    ticker.innerHTML = '<div class="ticker-empty">No recent milestones yet</div>';
+    return;
+  }
+
+  // Duplicate items so the scroll loops seamlessly
+  const all = [...items, ...items];
+  inner.innerHTML = all.map(item => `
+    <div class="ticker-item">
+      <span class="ticker-icon">${item.icon}</span>
+      <strong>${item.student}</strong><br>${item.label}
+    </div>
+  `).join('');
+
+  // Set animation duration proportional to item count so speed stays constant
+  const duration = items.length * 4;
+  inner.style.animationDuration = `${duration}s`;
+}
+
 // ── LEADERBOARD ───────────────────────────────────────────────────────────────
 
 function buildActivityStrip(last30) {
@@ -576,23 +776,17 @@ function buildLeaderboard(students) {
 
   const avColors = pal().av;
 
-  // Build a score map to detect ties
-  const scoreMap = {};
-  sorted.forEach(s => {
-    const sc = calcScore(s);
-    scoreMap[s.name] = sc;
-  });
-
   sorted.forEach((s, i) => {
     const [bg, fg] = avColors[students.indexOf(s) % avColors.length];
     const initials = s.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const avatarHtml = s.avatar_url
-    ? `<img src="${s.avatar_url}" alt="${s.name}">`
-    : initials;
+      ? `<img src="${s.avatar_url}" alt="${s.name}">`
+      : initials;
     const score = calcScore(s);
     const strip = buildActivityStrip(s.last30);
+    const onARoll = isOnARoll(s);
+    const milestones = earnedMilestones(s);
 
-    // Tiebreaker note: shown when this student has the same score as the one below
     let tieMeta = '';
     if (i < sorted.length - 1 && calcScore(sorted[i + 1]) === score) {
       const reason = tiebreakReason(s, sorted[i + 1]);
@@ -601,14 +795,23 @@ function buildLeaderboard(students) {
 
     const meta = `streak ${s.current_streak}d · ${s.commits_30} commits (30d)${tieMeta}`;
 
+    const rollTag = onARoll ? '<span class="on-a-roll">on a roll 🔥</span>' : '';
+
+    const milestoneBadges = milestones.length
+      ? `<div class="milestone-badges">${milestones.map(m =>
+          `<span class="mbadge" title="${m.label}">${m.icon}</span>`
+        ).join('')}</div>`
+      : '';
+
     const row = document.createElement('div');
     row.className = `rank-row${i === 0 ? ' rank-1' : ''}`;
     row.innerHTML = `
       <span class="rank-num">${i + 1}</span>
       <div class="avatar" style="background:${s.avatar_url ? 'transparent' : bg};color:${fg}">${avatarHtml}</div>
       <div>
-        <div class="user-name">${s.name}</div>
+        <div class="user-name">${s.name}${rollTag}</div>
         <div class="user-meta">${meta}</div>
+        ${milestoneBadges}
       </div>
       <div class="activity-strip">${strip}</div>
       <div class="score-block">
@@ -626,7 +829,6 @@ function buildLeaderboard(students) {
     el.appendChild(err);
   });
 
-  // Scoring explanation note
   document.getElementById('scoring-note').textContent =
     'Score: 100 pts over 90 days. Full points for gaps ≤7 days · partial (8–10d) · zero (11d+) · capped at 20 if no activity in 14+ days.';
 }
@@ -638,14 +840,14 @@ function buildBadges(students) {
   if (!valid.length) return;
 
   const scored = valid.map(s => ({ ...s, score: calcScore(s) }));
-  const byScore   = [...scored].sort((a, b) => b.score - a.score)[0];
-  const byStreak  = [...valid].sort((a, b) => b.current_streak - a.current_streak)[0];
-  const byGap     = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
+  const byScore  = [...scored].sort((a, b) => b.score - a.score)[0];
+  const byStreak = [...valid].sort((a, b) => b.current_streak - a.current_streak)[0];
+  const byGap    = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
 
   const badges = [
-    { label: 'Top score',        name: byScore.name,  val: `${byScore.score} pts` },
-    { label: 'Current streak',   name: byStreak.name, val: `${byStreak.current_streak} days` },
-    { label: 'Best avg gap',     name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—' }
+    { label: 'Top score',      name: byScore.name,  val: `${byScore.score} pts` },
+    { label: 'Current streak', name: byStreak.name, val: `${byStreak.current_streak} days` },
+    { label: 'Best avg gap',   name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—' }
   ];
 
   const el = document.getElementById('badges');
@@ -712,6 +914,7 @@ async function init() {
     }
 
     buildHeatmap(DATA.students);
+    buildTicker(DATA.students);
     buildLeaderboard(DATA.students);
     buildBadges(DATA.students);
     buildAlerts(DATA.students);
