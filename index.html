@@ -229,13 +229,22 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .rank-row:hover { border-color: var(--bhover); }
     .rank-row.rank-1 { border-color: var(--accent); }
     .rank-row.rank-1 .rank-num { color: var(--accent); }
     .rank-row.rank-1 .score-val { color: var(--accent); }
+
+    .rank-row.on-a-roll-row {
+      border-color: var(--warn);
+      box-shadow: 0 0 0 1px var(--warn), 0 0 12px 0 color-mix(in srgb, var(--warn) 35%, transparent);
+    }
+
+    .rank-row.on-a-roll-row:hover {
+      box-shadow: 0 0 0 1px var(--warn), 0 0 18px 0 color-mix(in srgb, var(--warn) 45%, transparent);
+    }
 
     .rank-num {
       font-family: 'JetBrains Mono', monospace;
@@ -576,29 +585,24 @@ const MILESTONE_DEFS = [
   },
 ];
 
-// Returns true if the student has at least 4 consecutive weeks
-// (Mon–Sun buckets) each containing at least one commit, ending this week.
+// Returns true if the student has committed at least once every 3 days
+// over the last 14 days (2 weeks). Checks that no 3-day window is empty.
 function isOnARoll(student) {
   if (!student.active_days || student.active_days.length === 0) return false;
   const activeSet = new Set(student.active_days);
-
-  // Walk back week by week from the current week
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0=Sun … 6=Sat; treat Mon as week start
-  const mondayOffset = (dayOfWeek + 6) % 7;  // days since last Monday
 
-  let consecutiveWeeks = 0;
-  for (let w = 0; w < 4; w++) {
+  // Walk back 28 days in 3-day windows; every window must have at least one commit
+  for (let start = 0; start < 14; start += 3) {
     let hasCommit = false;
-    for (let d = 0; d < 7; d++) {
+    for (let d = 0; d < 3; d++) {
       const date = new Date(today);
-      date.setDate(today.getDate() - mondayOffset - w * 7 + d);
+      date.setDate(today.getDate() - start - d);
       if (activeSet.has(date.toISOString().slice(0, 10))) { hasCommit = true; break; }
     }
-    if (hasCommit) consecutiveWeeks++;
-    else break;
+    if (!hasCommit) return false;
   }
-  return consecutiveWeeks >= 4;
+  return true;
 }
 
 // Returns array of earned milestone defs for a student.
@@ -792,7 +796,7 @@ function buildLeaderboard(students) {
       tieMeta = ` · ranked by ${reason}`;
     }
 
-    const meta = `streak ${s.current_streak}d · ${s.commits_30} commits (30d)${tieMeta}`;
+    const meta = `streak ${s.current_streak}d · ${s.total_commits ?? s.commits_30} commits total${tieMeta}`;
 
     const rollTag = onARoll ? '<span class="on-a-roll">on a roll 🔥</span>' : '';
 
@@ -803,7 +807,7 @@ function buildLeaderboard(students) {
       : '';
 
     const row = document.createElement('div');
-    row.className = `rank-row${i === 0 ? ' rank-1' : ''}`;
+    row.className = `rank-row${i === 0 ? ' rank-1' : ''}${onARoll ? ' on-a-roll-row' : ''}`;
     row.innerHTML = `
       <span class="rank-num">${i + 1}</span>
       <div class="avatar" style="background:${s.avatar_url ? 'transparent' : bg};color:${fg}">${avatarHtml}</div>
@@ -812,7 +816,10 @@ function buildLeaderboard(students) {
         <div class="user-meta">${meta}</div>
         ${milestoneBadges}
       </div>
-      <div class="activity-strip">${strip}</div>
+      <div>
+        <div class="activity-strip">${strip}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;text-align:right">last 30d</div>
+      </div>
       <div class="score-block">
         <div class="score-val">${score}</div>
         <div class="score-label">/ 100</div>
@@ -883,10 +890,13 @@ function buildAlerts(students) {
     const isDanger = d >= 14;
     const row = document.createElement('div');
     row.className = `alert-row ${isDanger ? 'danger' : 'warn'}`;
+    const msg = isDanger
+      ? `score capped at 20`
+      : `no commit in over a week`;
     row.innerHTML = `
       <span class="${isDanger ? 'alert-days-danger' : 'alert-days-warn'}">${d}d ago</span>
       <span class="alert-who">${s.name}</span>
-      ${isDanger ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--danger)">score capped at 20</span>' : ''}
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${isDanger ? 'var(--danger)' : 'var(--muted)'}">${msg}</span>
     `;
     el.appendChild(row);
   });
