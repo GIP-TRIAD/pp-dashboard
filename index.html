@@ -592,7 +592,7 @@ function isOnARoll(student) {
   const activeSet = new Set(student.active_days);
   const today = new Date();
 
-  // Walk back 28 days in 3-day windows; every window must have at least one commit
+  // Walk back 14 days in 3-day windows; every window must have at least one commit
   for (let start = 0; start < 14; start += 3) {
     let hasCommit = false;
     for (let d = 0; d < 3; d++) {
