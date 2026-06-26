@@ -1,22 +1,20 @@
 {
-  "generated_at": "2026-06-25T17:10:01.987Z",
+  "generated_at": "2026-06-26T00:55:26.146Z",
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "students": [
     {
       "name": "Bob",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
       "active_days": [
         "2026-06-25"
       ],
       "gaps": [],
       "avg_gap": 0,
-      "current_streak": 1,
+      "current_streak": 0,
       "commits_30": 1,
+      "total_commits": 1,
       "last30": [
-        {
-          "date": "2026-05-27",
-          "count": 0
-        },
         {
           "date": "2026-05-28",
           "count": 0
@@ -132,25 +130,28 @@
         {
           "date": "2026-06-25",
           "count": 1
+        },
+        {
+          "date": "2026-06-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-06-25",
-      "days_since_last": 0
+      "days_since_last": 1
     },
     {
       "name": "Clara",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
       "active_days": [
-        "2026-06-25"
+        "2026-06-25",
+        "2026-06-26"
       ],
       "gaps": [],
       "avg_gap": 0,
-      "current_streak": 1,
-      "commits_30": 3,
+      "current_streak": 2,
+      "commits_30": 11,
+      "total_commits": 11,
       "last30": [
-        {
-          "date": "2026-05-27",
-          "count": 0
-        },
         {
           "date": "2026-05-28",
           "count": 0
@@ -266,25 +267,27 @@
         {
           "date": "2026-06-25",
           "count": 3
+        },
+        {
+          "date": "2026-06-26",
+          "count": 8
         }
       ],
-      "last_commit": "2026-06-25",
+      "last_commit": "2026-06-26",
       "days_since_last": 0
     },
     {
       "name": "Alice",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
       "active_days": [
         "2026-06-25"
       ],
       "gaps": [],
       "avg_gap": 0,
-      "current_streak": 1,
+      "current_streak": 0,
       "commits_30": 1,
+      "total_commits": 1,
       "last30": [
-        {
-          "date": "2026-05-27",
-          "count": 0
-        },
         {
           "date": "2026-05-28",
           "count": 0
@@ -400,10 +403,14 @@
         {
           "date": "2026-06-25",
           "count": 1
+        },
+        {
+          "date": "2026-06-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-06-25",
-      "days_since_last": 0
+      "days_since_last": 1
     }
   ]
 }
