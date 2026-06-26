@@ -219,7 +219,7 @@ async function main() {
         avg_gap:         calcAvgGap(gaps),
         current_streak:  calcStreak(dailyMap),
         commits_30:      calcCommits30(dailyMap),
-        total_commits:   totalCommits,
+        total_commits:   Math.max(0, totalCommits - 1),
         last30,
         last_commit:     lastCommit,
         days_since_last: daysSinceLast
