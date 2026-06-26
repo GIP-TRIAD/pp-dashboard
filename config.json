@@ -2,10 +2,9 @@
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "org": "GIP-TRIAD",
-  "repo_prefix": "pp-student-",
+  "repo_prefix": "professional-project-",
   "students": [
-    { "name": "Alice", "slug": "alice"  },
-    { "name": "Bob",   "slug": "bob"    },
-    { "name": "Clara", "slug": "clara" }
+    { "name": "Bino", "slug": "bino"  },
+    { "name": "Eva", "slug": "eva" }
   ]
 }
