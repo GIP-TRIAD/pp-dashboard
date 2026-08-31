@@ -4,7 +4,17 @@
   "org": "GIP-TRIAD",
   "repo_prefix": "professional-project-",
   "students": [
-    { "name": "Bino", "slug": "bino"  },
+    { "name": "Bino", "slug": "bino" },
+    { "name": "Midori K.", "slug": "midorik" },
+    { "name": "Shuri", "slug": "shuri" },
+    { "name": "Midori T.", "slug": "midorit" },
+    { "name": "Temma", "slug": "temma" },
+    { "name": "Catherine", "slug": "catherine" },
+    { "name": "Zoe", "slug": "zoe" },
+    { "name": "Joyce", "slug": "joyce" },
+    { "name": "Livia", "slug": "livia" },
+    { "name": "Swann", "slug": "swann" },
+    { "name": "Lisa", "slug": "lisa" },
     { "name": "Eva", "slug": "eva" }
   ]
 }
