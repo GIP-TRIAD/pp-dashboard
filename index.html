@@ -272,6 +272,18 @@
 
     .user-name { font-size: 14px; color: var(--text); }
 
+    .repo-link {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed var(--border);
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .repo-link:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
     .user-meta {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
@@ -830,13 +842,17 @@ function buildLeaderboard(students) {
         ).join('')}</div>`
       : '';
 
+    const nameHtml = s.repo_url
+      ? `<a class="repo-link" href="${s.repo_url}" target="_blank" rel="noopener">${s.name}</a>`
+      : s.name;
+
     const row = document.createElement('div');
     row.className = `rank-row${i === 0 ? ' rank-1' : ''}${onARoll ? ' on-a-roll-row' : ''}`;
     row.innerHTML = `
       <span class="rank-num">${i + 1}</span>
       <div class="avatar" style="background:${s.avatar_url ? 'transparent' : bg};color:${fg}">${avatarHtml}</div>
       <div>
-        <div class="user-name">${s.name}${rollTag}</div>
+        <div class="user-name">${nameHtml}${rollTag}</div>
         <div class="user-meta">${meta}</div>
         ${milestoneBadges}
       </div>
@@ -855,7 +871,18 @@ function buildLeaderboard(students) {
   errors.forEach(s => {
     const err = document.createElement('div');
     err.className = 'error-note';
-    err.textContent = `${s.name}: could not fetch data — ${s.error}`;
+    if (s.repo_url) {
+      const link = document.createElement('a');
+      link.className = 'repo-link';
+      link.href = s.repo_url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = s.name;
+      err.appendChild(link);
+      err.appendChild(document.createTextNode(`: could not fetch data — ${s.error}`));
+    } else {
+      err.textContent = `${s.name}: could not fetch data — ${s.error}`;
+    }
     el.appendChild(err);
   });
 
@@ -888,9 +915,9 @@ function buildBadges(students) {
   const byGap    = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
 
   const badges = [
-    { label: 'Top score',      name: byScore.name,  val: `${byScore.score} pts` },
-    { label: 'Current streak', name: byStreak.name, val: `${byStreak.current_streak} days` },
-    { label: 'Best avg gap',   name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—' }
+    { label: 'Top score',      name: byScore.name,  val: `${byScore.score} pts`, url: byScore.repo_url },
+    { label: 'Current streak', name: byStreak.name, val: `${byStreak.current_streak} days`, url: byStreak.repo_url },
+    { label: 'Best avg gap',   name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—', url: byGap ? byGap.repo_url : null }
   ];
 
   const el = document.getElementById('badges');
@@ -898,9 +925,12 @@ function buildBadges(students) {
   badges.forEach(b => {
     const card = document.createElement('div');
     card.className = 'badge-card';
+    const nameHtml = b.url
+      ? `<a class="repo-link" href="${b.url}" target="_blank" rel="noopener">${b.name}</a>`
+      : b.name;
     card.innerHTML = `
       <div class="badge-label">${b.label}</div>
-      <div class="badge-name">${b.name}</div>
+      <div class="badge-name">${nameHtml}</div>
       <div class="badge-val">${b.val}</div>
     `;
     el.appendChild(card);
@@ -930,9 +960,12 @@ function buildAlerts(students) {
     const msg = isDanger
       ? `score capped at 20`
       : `no commit in over a week`;
+    const nameHtml = s.repo_url
+      ? `<a class="repo-link" href="${s.repo_url}" target="_blank" rel="noopener">${s.name}</a>`
+      : s.name;
     row.innerHTML = `
       <span class="${isDanger ? 'alert-days-danger' : 'alert-days-warn'}">${d}d ago</span>
-      <span class="alert-who">${s.name}</span>
+      <span class="alert-who">${nameHtml}</span>
       <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${isDanger ? 'var(--danger)' : 'var(--muted)'}">${msg}</span>
     `;
     el.appendChild(row);
