@@ -1,18 +1,16 @@
 {
-  "generated_at": "2026-09-08T18:11:05.471Z",
+  "generated_at": "2026-09-08T22:56:30.883Z",
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "students": [
     {
       "name": "Bino",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -105,7 +103,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -136,19 +134,17 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Midori K.",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -241,7 +237,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -272,19 +268,17 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Shuri",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -377,7 +371,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -408,20 +402,19 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Midori T.",
       "avatar_url": "https://avatars.githubusercontent.com/u/322261980?v=4",
       "active_days": [
-        "2026-09-01",
         "2026-09-08"
       ],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 1,
-      "commits_30": 2,
+      "commits_30": 1,
       "total_commits": 1,
       "last30": [
         {
@@ -514,7 +507,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -550,14 +543,12 @@
     },
     {
       "name": "Temma",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -650,7 +641,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -681,19 +672,17 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Catherine",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -786,7 +775,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -817,20 +806,19 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Zoe",
       "avatar_url": "https://avatars.githubusercontent.com/u/322079801?v=4",
       "active_days": [
-        "2026-09-01",
         "2026-09-08"
       ],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 1,
-      "commits_30": 3,
+      "commits_30": 2,
       "total_commits": 2,
       "last30": [
         {
@@ -923,7 +911,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -959,14 +947,12 @@
     },
     {
       "name": "Joyce",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -1059,7 +1045,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -1090,19 +1076,17 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Livia",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -1195,7 +1179,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -1226,20 +1210,19 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Swann",
       "avatar_url": "https://avatars.githubusercontent.com/u/322483965?v=4",
       "active_days": [
-        "2026-09-01",
         "2026-09-08"
       ],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 1,
-      "commits_30": 3,
+      "commits_30": 2,
       "total_commits": 2,
       "last30": [
         {
@@ -1332,7 +1315,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -1368,14 +1351,12 @@
     },
     {
       "name": "Lisa",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -1468,7 +1449,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -1499,19 +1480,17 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     },
     {
       "name": "Eva",
-      "avatar_url": "https://avatars.githubusercontent.com/u/58579315?v=4",
-      "active_days": [
-        "2026-09-01"
-      ],
+      "avatar_url": null,
+      "active_days": [],
       "gaps": [],
       "avg_gap": 0,
       "current_streak": 0,
-      "commits_30": 1,
+      "commits_30": 0,
       "total_commits": 0,
       "last30": [
         {
@@ -1604,7 +1583,7 @@
         },
         {
           "date": "2026-09-01",
-          "count": 1
+          "count": 0
         },
         {
           "date": "2026-09-02",
@@ -1635,8 +1614,8 @@
           "count": 0
         }
       ],
-      "last_commit": "2026-09-01",
-      "days_since_last": 7
+      "last_commit": null,
+      "days_since_last": 999
     }
   ]
 }
