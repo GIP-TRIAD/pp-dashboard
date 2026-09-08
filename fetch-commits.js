@@ -259,6 +259,7 @@ async function main() {
 
       output.students.push({
         name,
+        repo_url:        `https://github.com/${repo}`,
         avatar_url:      avatarUrl,
         active_days:     days,
         gaps,
@@ -275,6 +276,7 @@ async function main() {
       console.error(`Error fetching ${repo}: ${err.message}`);
       output.students.push({
         name,
+        repo_url:        `https://github.com/${repo}`,
         error:           err.message,
         active_days:     [],
         gaps:            [],
