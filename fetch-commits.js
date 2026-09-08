@@ -9,7 +9,7 @@ const fs    = require('fs');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const token  = process.env.GH_TOKEN;
 const ORG    = config.org;         // "GIP-TRIAD"
-const PREFIX = config.repo_prefix; // "pp-student-"
+const PREFIX = config.repo_prefix; // "professional-project-"
 
 if (!token) {
   console.error('GH_TOKEN is not set.');
@@ -111,22 +111,15 @@ async function fetchAllCommits(repo) {
   return await githubGetAll(`/repos/${repo}/commits`);
 }
 
-// GitHub auto-generates a commit with this exact message when a repo is
-// created from a template (which is how these student repos get created).
-// That auto-generated commit is NOT necessarily a git root (parents: []) —
-// if the template's own commit history gets carried over, this commit sits
-// on top of it with a real parent. So match on the message directly instead
-// of assuming zero parents.
+// The repo-creation commit (README added when the repo was generated) is
+// always the very first commit ever made to the repo. Matching on commit
+// *message* text is unreliable — if a template's own history is carried
+// over, there can be an older commit somewhere in the full history that
+// happens to share the same message, and that sha won't even be in the
+// recent-commits window, so nothing gets filtered. Position is reliable:
+// GitHub's commits API always returns newest-first, so the true initial
+// commit is simply the last entry once all pages are concatenated.
 function findInitialCommitSha(allCommits) {
-  const byMessage = allCommits.find(c => (c.commit?.message || '').split('\n')[0].trim() === 'Initial commit');
-  if (byMessage) return byMessage.sha;
-
-  // Fallback for repos that don't carry that exact message: true root commit.
-  const root = allCommits.find(c => Array.isArray(c.parents) && c.parents.length === 0);
-  if (root) return root.sha;
-
-  // Last resort: GitHub returns commits newest-first, so the oldest commit
-  // is the last entry once all pages are concatenated.
   return allCommits.length > 0 ? allCommits[allCommits.length - 1].sha : null;
 }
 
