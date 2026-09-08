@@ -111,14 +111,22 @@ async function fetchAllCommits(repo) {
   return await githubGetAll(`/repos/${repo}/commits`);
 }
 
-// The initial commit is the one with zero parents — this is structural,
-// not based on author date, so it can't be fooled by backdated timestamps,
-// rebases, or who happened to author it.
+// GitHub auto-generates a commit with this exact message when a repo is
+// created from a template (which is how these student repos get created).
+// That auto-generated commit is NOT necessarily a git root (parents: []) —
+// if the template's own commit history gets carried over, this commit sits
+// on top of it with a real parent. So match on the message directly instead
+// of assuming zero parents.
 function findInitialCommitSha(allCommits) {
+  const byMessage = allCommits.find(c => (c.commit?.message || '').split('\n')[0].trim() === 'Initial commit');
+  if (byMessage) return byMessage.sha;
+
+  // Fallback for repos that don't carry that exact message: true root commit.
   const root = allCommits.find(c => Array.isArray(c.parents) && c.parents.length === 0);
   if (root) return root.sha;
-  // Fallback: GitHub returns commits newest-first, so the last page's last
-  // entry is the oldest commit if no explicit root was found.
+
+  // Last resort: GitHub returns commits newest-first, so the oldest commit
+  // is the last entry once all pages are concatenated.
   return allCommits.length > 0 ? allCommits[allCommits.length - 1].sha : null;
 }
 
