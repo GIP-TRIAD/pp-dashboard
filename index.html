@@ -847,9 +847,22 @@ function buildBadges(students) {
   const valid = students.filter(s => !s.error);
   if (!valid.length) return;
 
-  const scored = valid.map(s => ({ ...s, score: calcScore(s) }));
-  const byScore  = [...scored].sort((a, b) => b.score - a.score)[0];
-  const byStreak = [...valid].sort((a, b) => b.current_streak - a.current_streak)[0];
+  // Reuse the same tiebreak chain as the leaderboard (score → streak →
+  // commits_30 → avg_gap) so "Top score" agrees with whoever actually sits
+  // at #1 on the board — a bare sort on score alone leaves ties broken by
+  // original array order (i.e. config.json order), not merit.
+  const scored  = valid.map(s => ({ ...s, score: calcScore(s) }));
+  const byScore = sortStudents(scored)[0];
+
+  // Same problem for streak: a plain sort on current_streak alone lets ties
+  // fall back to array order. Break ties the same way tiebreakReason() does
+  // elsewhere — more commits in the window wins, then tighter avg gap.
+  const byStreak = [...valid].sort((a, b) => {
+    if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
+    if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
+    return a.avg_gap - b.avg_gap;
+  })[0];
+
   const byGap    = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
 
   const badges = [
