@@ -879,7 +879,7 @@ function buildAlerts(students) {
   el.innerHTML = '';
 
   const late = students
-    .filter(s => !s.error && s.days_since_last >= 10)
+    .filter(s => !s.error && s.last_commit !== null && s.days_since_last >= 10)
     .sort((a, b) => b.days_since_last - a.days_since_last);
 
   if (!late.length) {
