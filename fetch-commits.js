@@ -77,7 +77,7 @@ async function discoverStudentRepos() {
     const fullName = `${ORG}/${PREFIX}${s.slug}`;
     const { data, status } = await githubGet(`/repos/${fullName}`);
     if (status === 200) {
-      repos.push(fullName);
+      repos.push({ fullName, createdAt: data.created_at });
     } else {
       console.error(`Skipping ${fullName}: ${data?.message || `HTTP ${status}`}`);
     }
@@ -111,16 +111,28 @@ async function fetchAllCommits(repo) {
   return await githubGetAll(`/repos/${repo}/commits`);
 }
 
-// The repo-creation commit (README added when the repo was generated) is
-// always the very first commit ever made to the repo. Matching on commit
-// *message* text is unreliable — if a template's own history is carried
-// over, there can be an older commit somewhere in the full history that
-// happens to share the same message, and that sha won't even be in the
-// recent-commits window, so nothing gets filtered. Position is reliable:
-// GitHub's commits API always returns newest-first, so the true initial
-// commit is simply the last entry once all pages are concatenated.
-function findInitialCommitSha(allCommits) {
-  return allCommits.length > 0 ? allCommits[allCommits.length - 1].sha : null;
+// Neither commit message text nor "oldest commit in the list" reliably
+// identifies the repo-creation commit: if the template's own history was
+// carried over, that history predates the student's repo entirely, so the
+// true oldest commit (or an old commit that happens to share the message
+// "Initial commit") is template history, not this repo's creation commit —
+// and it won't even appear in the 90-day recent-commits window, so nothing
+// gets filtered.
+//
+// What's actually reliable: the repo's own creation timestamp (from
+// GET /repos/{repo}), which we already fetch in discoverStudentRepos. Any
+// commit authored at-or-before that moment is scaffolding (the template
+// generation itself, plus any carried-over template history) — no student
+// can have committed real work before their repo existed. A small grace
+// window absorbs clock skew between the commit timestamp and the repo
+// creation timestamp.
+const SCAFFOLD_GRACE_MS = 5 * 60 * 1000; // 5 minutes
+
+function isScaffoldCommit(commit, repoCreatedAt) {
+  if (!repoCreatedAt) return false;
+  const commitDate = new Date(commit.commit?.author?.date || commit.commit?.committer?.date || 0);
+  const createdDate = new Date(repoCreatedAt);
+  return commitDate.getTime() <= createdDate.getTime() + SCAFFOLD_GRACE_MS;
 }
 
 function toDailyMap(commits) {
@@ -215,7 +227,7 @@ async function main() {
     students: []
   };
 
-  for (const repo of repos) {
+  for (const { fullName: repo, createdAt } of repos) {
     const name = displayName(repo, slugMap);
     console.log(`Fetching: ${repo}`);
     try {
@@ -224,9 +236,9 @@ async function main() {
         fetchAllCommits(repo)
       ]);
 
-      const initialSha   = findInitialCommitSha(allCommits);
       const totalCommits = allCommits.length;
-      const realCommits  = initialSha ? commits.filter(c => c.sha !== initialSha) : commits;
+      const scaffoldCount = allCommits.filter(c => isScaffoldCommit(c, createdAt)).length;
+      const realCommits   = commits.filter(c => !isScaffoldCommit(c, createdAt));
 
       const dailyMap    = toDailyMap(realCommits);
       const days        = activeDays(dailyMap);
@@ -253,7 +265,7 @@ async function main() {
         avg_gap:         calcAvgGap(gaps),
         current_streak:  calcStreak(dailyMap),
         commits_30:      calcCommits30(dailyMap),
-        total_commits:   Math.max(0, totalCommits - 1),
+        total_commits:   Math.max(0, totalCommits - scaffoldCount),
         last30,
         last_commit:     lastCommit,
         days_since_last: daysSinceLast
