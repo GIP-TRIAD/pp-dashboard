@@ -1,5 +1,5 @@
 // scripts/fetch-commits.js
-// Discovers all pp-student-* repos in the org, fetches commit data for each,
+// Fetches commit data for each student repo explicitly listed in config.json,
 // and writes data.json for the dashboard.
 // Requires: GH_TOKEN env var (read access to org repos).
 
@@ -33,7 +33,7 @@ function githubGet(path) {
     const req = https.get(options, res => {
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        try { resolve({ data: JSON.parse(body), headers: res.headers }); }
+        try { resolve({ data: JSON.parse(body), headers: res.headers, status: res.statusCode }); }
         catch (e) { reject(new Error(`JSON parse error on ${path}: ${body.slice(0, 200)}`)); }
       });
     });
@@ -57,13 +57,32 @@ async function githubGetAll(path) {
 }
 
 // ── Repo discovery ────────────────────────────────────────────────────────────
+// Only fetches repos explicitly listed in config.json's "students" array —
+// does NOT scan the org or match repos on prefix alone.
 
 async function discoverStudentRepos() {
-  console.log(`Discovering repos with prefix "${PREFIX}" in org "${ORG}"…`);
-  const repos = await githubGetAll(`/orgs/${ORG}/repos?type=all`);
-  return repos
-    .filter(r => r.name.startsWith(PREFIX))
-    .map(r => `${r.owner.login}/${r.name}`);
+  const students = config.students || [];
+  if (students.length === 0) {
+    console.error('No students defined in config.json under "students".');
+    return [];
+  }
+
+  console.log(`Resolving ${students.length} repo(s) from config.json…`);
+  const repos = [];
+  for (const s of students) {
+    if (!s.slug) {
+      console.error(`Skipping student entry with no "slug": ${JSON.stringify(s)}`);
+      continue;
+    }
+    const fullName = `${ORG}/${PREFIX}${s.slug}`;
+    const { data, status } = await githubGet(`/repos/${fullName}`);
+    if (status === 200) {
+      repos.push(fullName);
+    } else {
+      console.error(`Skipping ${fullName}: ${data?.message || `HTTP ${status}`}`);
+    }
+  }
+  return repos;
 }
 
 // ── Commit helpers ────────────────────────────────────────────────────────────
