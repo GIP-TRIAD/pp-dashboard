@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-09-08T22:56:30.883Z",
+  "generated_at": "2026-09-08T23:54:52.333Z",
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "students": [
     {
       "name": "Bino",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-bino",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -139,6 +140,7 @@
     },
     {
       "name": "Midori K.",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-midorik",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -273,6 +275,7 @@
     },
     {
       "name": "Shuri",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-shuri",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -407,6 +410,7 @@
     },
     {
       "name": "Midori T.",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-midorit",
       "avatar_url": "https://avatars.githubusercontent.com/u/322261980?v=4",
       "active_days": [
         "2026-09-08"
@@ -543,6 +547,7 @@
     },
     {
       "name": "Temma",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-temma",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -677,6 +682,7 @@
     },
     {
       "name": "Catherine",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-catherine",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -811,6 +817,7 @@
     },
     {
       "name": "Zoe",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-zoe",
       "avatar_url": "https://avatars.githubusercontent.com/u/322079801?v=4",
       "active_days": [
         "2026-09-08"
@@ -947,6 +954,7 @@
     },
     {
       "name": "Joyce",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-joyce",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -1081,6 +1089,7 @@
     },
     {
       "name": "Livia",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-livia",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -1215,6 +1224,7 @@
     },
     {
       "name": "Swann",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-swann",
       "avatar_url": "https://avatars.githubusercontent.com/u/322483965?v=4",
       "active_days": [
         "2026-09-08"
@@ -1351,6 +1361,7 @@
     },
     {
       "name": "Lisa",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-lisa",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
@@ -1485,6 +1496,7 @@
     },
     {
       "name": "Eva",
+      "repo_url": "https://github.com/GIP-TRIAD/professional-project-eva",
       "avatar_url": null,
       "active_days": [],
       "gaps": [],
