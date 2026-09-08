@@ -167,6 +167,7 @@
     }
 
     .day-cell:hover { opacity: 0.7; }
+    .day-cell-empty { visibility: hidden; }
 
     .legend { display: flex; align-items: center; gap: 5px; margin-top: 12px; justify-content: flex-end; }
     .legend span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
@@ -456,7 +457,7 @@
   <main>
 
     <div class="section">
-      <div class="section-title">Team activity — last 26 weeks</div>
+      <div class="section-title" id="heatmap-title">Team activity</div>
       <div class="heatmap-wrap">
         <div class="heatmap-main">
           <div class="month-row" id="month-labels"></div>
@@ -685,10 +686,20 @@ function cellColor(v, max) {
 }
 
 function buildHeatmap(students) {
-  const weeks = 26;
+  // Anchor to the actual tracking period rather than a rolling window ending
+  // "today": 1st of the current month through the last day of the 4th month
+  // (e.g. Sep 1 → Dec 31), so the heatmap reflects the real semester length
+  // instead of an arbitrary trailing 6 months.
   const today = new Date();
-  const startDate = new Date(today);
-  startDate.setDate(startDate.getDate() - (weeks * 7 - 1));
+  const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endDate   = new Date(startDate.getFullYear(), startDate.getMonth() + 4, 0);
+  const totalDays = Math.round((endDate - startDate) / 86400000) + 1;
+  const weeks = Math.ceil(totalDays / 7);
+
+  const titleEl = document.getElementById('heatmap-title');
+  if (titleEl) {
+    titleEl.textContent = `Team activity — ${MONTH_NAMES[startDate.getMonth()]} to ${MONTH_NAMES[endDate.getMonth()]} ${endDate.getFullYear()}`;
+  }
 
   // Aggregate commit counts per day across all students using active_days
   const dayMap = {};
@@ -713,6 +724,17 @@ function buildHeatmap(students) {
     for (let d = 0; d < 7; d++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + w * 7 + d);
+
+      // Trailing cells past the tracking period's end (partial last week) —
+      // keep them as invisible spacers so the grid stays aligned without
+      // implying there's data (or a day) beyond the period.
+      if (date > endDate) {
+        const filler = document.createElement('div');
+        filler.className = 'day-cell day-cell-empty';
+        col.appendChild(filler);
+        continue;
+      }
+
       const key = date.toISOString().slice(0, 10);
       const val = dayMap[key] || 0;
 
