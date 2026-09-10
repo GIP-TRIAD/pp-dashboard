@@ -9,7 +9,7 @@ const fs    = require('fs');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const token  = process.env.GH_TOKEN;
 const ORG    = config.org;         // "GIP-TRIAD"
-const PREFIX = config.repo_prefix; // "pp-student-"
+const PREFIX = config.repo_prefix; // "professional-project-"
 
 if (!token) {
   console.error('GH_TOKEN is not set.');
@@ -77,7 +77,7 @@ async function discoverStudentRepos() {
     const fullName = `${ORG}/${PREFIX}${s.slug}`;
     const { data, status } = await githubGet(`/repos/${fullName}`);
     if (status === 200) {
-      repos.push(fullName);
+      repos.push({ fullName, createdAt: data.created_at });
     } else {
       console.error(`Skipping ${fullName}: ${data?.message || `HTTP ${status}`}`);
     }
@@ -106,10 +106,33 @@ async function fetchRecentCommits(repo) {
   return all;
 }
 
-// Fetch total commit count for the repo (all time)
-async function fetchTotalCommits(repo) {
-  const all = await githubGetAll(`/repos/${repo}/commits`);
-  return all.length;
+// Fetch the full commit history for the repo (all time)
+async function fetchAllCommits(repo) {
+  return await githubGetAll(`/repos/${repo}/commits`);
+}
+
+// Neither commit message text nor "oldest commit in the list" reliably
+// identifies the repo-creation commit: if the template's own history was
+// carried over, that history predates the student's repo entirely, so the
+// true oldest commit (or an old commit that happens to share the message
+// "Initial commit") is template history, not this repo's creation commit —
+// and it won't even appear in the 90-day recent-commits window, so nothing
+// gets filtered.
+//
+// What's actually reliable: the repo's own creation timestamp (from
+// GET /repos/{repo}), which we already fetch in discoverStudentRepos. Any
+// commit authored at-or-before that moment is scaffolding (the template
+// generation itself, plus any carried-over template history) — no student
+// can have committed real work before their repo existed. A small grace
+// window absorbs clock skew between the commit timestamp and the repo
+// creation timestamp.
+const SCAFFOLD_GRACE_MS = 5 * 60 * 1000; // 5 minutes
+
+function isScaffoldCommit(commit, repoCreatedAt) {
+  if (!repoCreatedAt) return false;
+  const commitDate = new Date(commit.commit?.author?.date || commit.commit?.committer?.date || 0);
+  const createdDate = new Date(repoCreatedAt);
+  return commitDate.getTime() <= createdDate.getTime() + SCAFFOLD_GRACE_MS;
 }
 
 function toDailyMap(commits) {
@@ -204,27 +227,31 @@ async function main() {
     students: []
   };
 
-  for (const repo of repos) {
+  for (const { fullName: repo, createdAt } of repos) {
     const name = displayName(repo, slugMap);
     console.log(`Fetching: ${repo}`);
     try {
-      const [commits, totalCommits] = await Promise.all([
+      const [commits, allCommits] = await Promise.all([
         fetchRecentCommits(repo),
-        fetchTotalCommits(repo)
+        fetchAllCommits(repo)
       ]);
 
-      const dailyMap   = toDailyMap(commits);
-      const days       = activeDays(dailyMap);
-      const gaps       = calcGaps(days.slice(1)); // skip first day (template commit)
-      const last30     = calcLast30(dailyMap);
-      const lastCommit = days.slice(-1)[0] || null;
+      const totalCommits = allCommits.length;
+      const scaffoldCount = allCommits.filter(c => isScaffoldCommit(c, createdAt)).length;
+      const realCommits   = commits.filter(c => !isScaffoldCommit(c, createdAt));
+
+      const dailyMap    = toDailyMap(realCommits);
+      const days        = activeDays(dailyMap);
+      const gaps        = calcGaps(days);
+      const last30      = calcLast30(dailyMap);
+      const lastCommit  = days.slice(-1)[0] || null;
       const daysSinceLast = lastCommit
         ? Math.floor((new Date() - new Date(lastCommit)) / 86400000)
         : 999;
 
       // avatar_url lives on c.author (GitHub user object), not c.commit.author (git metadata)
       const avatarCounts = {};
-      for (const c of commits) {
+      for (const c of realCommits) {
         const url = c.author?.avatar_url;
         if (url) avatarCounts[url] = (avatarCounts[url] || 0) + 1;
       }
@@ -232,13 +259,14 @@ async function main() {
 
       output.students.push({
         name,
+        repo_url:        `https://github.com/${repo}`,
         avatar_url:      avatarUrl,
         active_days:     days,
         gaps,
         avg_gap:         calcAvgGap(gaps),
         current_streak:  calcStreak(dailyMap),
         commits_30:      calcCommits30(dailyMap),
-        total_commits:   Math.max(0, totalCommits - 1),
+        total_commits:   Math.max(0, totalCommits - scaffoldCount),
         last30,
         last_commit:     lastCommit,
         days_since_last: daysSinceLast
@@ -248,6 +276,7 @@ async function main() {
       console.error(`Error fetching ${repo}: ${err.message}`);
       output.students.push({
         name,
+        repo_url:        `https://github.com/${repo}`,
         error:           err.message,
         active_days:     [],
         gaps:            [],
