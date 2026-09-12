@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T17:58:32.157Z",
+  "generated_at": "2026-09-12T17:31:27.683Z",
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "students": [
@@ -19,10 +19,6 @@
       "commits_30": 2,
       "total_commits": 2,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -138,10 +134,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-10",
-      "days_since_last": 1
+      "days_since_last": 2
     },
     {
       "name": "Midori K.",
@@ -156,10 +156,6 @@
       "commits_30": 4,
       "total_commits": 4,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -275,10 +271,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-09",
-      "days_since_last": 2
+      "days_since_last": 3
     },
     {
       "name": "Shuri",
@@ -292,14 +292,10 @@
         1
       ],
       "avg_gap": 1,
-      "current_streak": 2,
+      "current_streak": 0,
       "commits_30": 3,
       "total_commits": 3,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -415,10 +411,14 @@
         {
           "date": "2026-09-11",
           "count": 1
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-11",
-      "days_since_last": 0
+      "days_since_last": 1
     },
     {
       "name": "Midori T.",
@@ -434,14 +434,10 @@
         1
       ],
       "avg_gap": 1.5,
-      "current_streak": 2,
+      "current_streak": 0,
       "commits_30": 3,
       "total_commits": 3,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -557,10 +553,14 @@
         {
           "date": "2026-09-11",
           "count": 1
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-11",
-      "days_since_last": 0
+      "days_since_last": 1
     },
     {
       "name": "Temma",
@@ -574,10 +574,6 @@
       "total_commits": 0,
       "last30": [
         {
-          "date": "2026-08-13",
-          "count": 0
-        },
-        {
           "date": "2026-08-14",
           "count": 0
         },
@@ -692,6 +688,10 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": null,
@@ -703,20 +703,18 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/322027987?v=4",
       "active_days": [
         "2026-09-09",
-        "2026-09-10"
+        "2026-09-10",
+        "2026-09-12"
       ],
       "gaps": [
-        1
+        1,
+        2
       ],
-      "avg_gap": 1,
-      "current_streak": 0,
-      "commits_30": 9,
-      "total_commits": 9,
+      "avg_gap": 1.5,
+      "current_streak": 1,
+      "commits_30": 13,
+      "total_commits": 13,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -832,10 +830,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 4
         }
       ],
-      "last_commit": "2026-09-10",
-      "days_since_last": 1
+      "last_commit": "2026-09-12",
+      "days_since_last": 0
     },
     {
       "name": "Zoe",
@@ -851,10 +853,6 @@
       "total_commits": 2,
       "last30": [
         {
-          "date": "2026-08-13",
-          "count": 0
-        },
-        {
           "date": "2026-08-14",
           "count": 0
         },
@@ -969,10 +967,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-08",
-      "days_since_last": 3
+      "days_since_last": 4
     },
     {
       "name": "Joyce",
@@ -988,10 +990,6 @@
       "total_commits": 1,
       "last30": [
         {
-          "date": "2026-08-13",
-          "count": 0
-        },
-        {
           "date": "2026-08-14",
           "count": 0
         },
@@ -1106,10 +1104,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-09",
-      "days_since_last": 2
+      "days_since_last": 3
     },
     {
       "name": "Livia",
@@ -1125,10 +1127,6 @@
       "total_commits": 1,
       "last30": [
         {
-          "date": "2026-08-13",
-          "count": 0
-        },
-        {
           "date": "2026-08-14",
           "count": 0
         },
@@ -1243,10 +1241,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-09",
-      "days_since_last": 2
+      "days_since_last": 3
     },
     {
       "name": "Swann",
@@ -1262,10 +1264,6 @@
       "total_commits": 2,
       "last30": [
         {
-          "date": "2026-08-13",
-          "count": 0
-        },
-        {
           "date": "2026-08-14",
           "count": 0
         },
@@ -1380,10 +1378,14 @@
         {
           "date": "2026-09-11",
           "count": 0
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-08",
-      "days_since_last": 3
+      "days_since_last": 4
     },
     {
       "name": "Lisa",
@@ -1397,14 +1399,10 @@
         1
       ],
       "avg_gap": 1,
-      "current_streak": 2,
+      "current_streak": 0,
       "commits_30": 2,
       "total_commits": 2,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -1520,10 +1518,14 @@
         {
           "date": "2026-09-11",
           "count": 1
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-11",
-      "days_since_last": 0
+      "days_since_last": 1
     },
     {
       "name": "Eva",
@@ -1534,14 +1536,10 @@
       ],
       "gaps": [],
       "avg_gap": 0,
-      "current_streak": 1,
+      "current_streak": 0,
       "commits_30": 2,
       "total_commits": 2,
       "last30": [
-        {
-          "date": "2026-08-13",
-          "count": 0
-        },
         {
           "date": "2026-08-14",
           "count": 0
@@ -1657,10 +1655,14 @@
         {
           "date": "2026-09-11",
           "count": 2
+        },
+        {
+          "date": "2026-09-12",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-11",
-      "days_since_last": 0
+      "days_since_last": 1
     }
   ]
 }
