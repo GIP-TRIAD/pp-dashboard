@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T02:16:11.727Z",
+  "generated_at": "2026-09-14T19:40:31.709Z",
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "students": [
@@ -983,13 +983,16 @@
       "repo_url": "https://github.com/GIP-TRIAD/professional-project-joyce",
       "avatar_url": "https://avatars.githubusercontent.com/u/322029986?v=4",
       "active_days": [
-        "2026-09-09"
+        "2026-09-09",
+        "2026-09-14"
       ],
-      "gaps": [],
-      "avg_gap": 0,
-      "current_streak": 0,
-      "commits_30": 1,
-      "total_commits": 1,
+      "gaps": [
+        5
+      ],
+      "avg_gap": 5,
+      "current_streak": 1,
+      "commits_30": 2,
+      "total_commits": 2,
       "last30": [
         {
           "date": "2026-08-16",
@@ -1109,11 +1112,11 @@
         },
         {
           "date": "2026-09-14",
-          "count": 0
+          "count": 1
         }
       ],
-      "last_commit": "2026-09-09",
-      "days_since_last": 5
+      "last_commit": "2026-09-14",
+      "days_since_last": 0
     },
     {
       "name": "Livia",
@@ -1260,13 +1263,16 @@
       "repo_url": "https://github.com/GIP-TRIAD/professional-project-swann",
       "avatar_url": "https://avatars.githubusercontent.com/u/322483965?v=4",
       "active_days": [
-        "2026-09-08"
+        "2026-09-08",
+        "2026-09-14"
       ],
-      "gaps": [],
-      "avg_gap": 0,
-      "current_streak": 0,
-      "commits_30": 2,
-      "total_commits": 2,
+      "gaps": [
+        6
+      ],
+      "avg_gap": 6,
+      "current_streak": 1,
+      "commits_30": 3,
+      "total_commits": 3,
       "last30": [
         {
           "date": "2026-08-16",
@@ -1386,11 +1392,11 @@
         },
         {
           "date": "2026-09-14",
-          "count": 0
+          "count": 1
         }
       ],
-      "last_commit": "2026-09-08",
-      "days_since_last": 6
+      "last_commit": "2026-09-14",
+      "days_since_last": 0
     },
     {
       "name": "Lisa",
@@ -1537,13 +1543,16 @@
       "repo_url": "https://github.com/GIP-TRIAD/professional-project-eva",
       "avatar_url": "https://avatars.githubusercontent.com/u/322042432?v=4",
       "active_days": [
-        "2026-09-11"
+        "2026-09-11",
+        "2026-09-14"
       ],
-      "gaps": [],
-      "avg_gap": 0,
-      "current_streak": 0,
-      "commits_30": 2,
-      "total_commits": 2,
+      "gaps": [
+        3
+      ],
+      "avg_gap": 3,
+      "current_streak": 1,
+      "commits_30": 3,
+      "total_commits": 3,
       "last30": [
         {
           "date": "2026-08-16",
@@ -1663,11 +1672,11 @@
         },
         {
           "date": "2026-09-14",
-          "count": 0
+          "count": 1
         }
       ],
-      "last_commit": "2026-09-11",
-      "days_since_last": 3
+      "last_commit": "2026-09-14",
+      "days_since_last": 0
     }
   ]
 }
