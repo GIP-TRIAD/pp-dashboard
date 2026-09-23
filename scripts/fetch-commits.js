@@ -157,9 +157,29 @@ function calcGaps(days) {
   return gaps;
 }
 
-function calcAvgGap(gaps) {
-  if (gaps.length === 0) return 0;
-  return Math.round((gaps.reduce((a, b) => a + b, 0) / gaps.length) * 10) / 10;
+// Average gap between commits, from the first commit through to the last
+// commit — or through to *today*, if the last commit wasn't made today.
+//
+// calcGaps() (used for scoring) only measures gaps between recorded commit
+// days, so a student who commits twice in a row and then goes silent for a
+// week has that silence invisible to the average: there's no "next commit"
+// to measure a gap against. That let inactive students hold the "best avg
+// gap" record. Here we append today's date as an extra boundary point
+// whenever the student's last commit wasn't today, so an ongoing gap counts
+// against the average just like any other gap would once it's closed.
+function calcAvgGap(days) {
+  if (!days || days.length === 0) return 0;
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const points = days[days.length - 1] === todayStr ? days : [...days, todayStr];
+
+  if (points.length < 2) return 0; // single commit, made today: no gap yet
+
+  let totalSpan = 0;
+  for (let i = 1; i < points.length; i++) {
+    totalSpan += (new Date(points[i]) - new Date(points[i - 1])) / 86400000;
+  }
+  return Math.round((totalSpan / (points.length - 1)) * 10) / 10;
 }
 
 function calcStreak(dailyMap) {
@@ -263,7 +283,7 @@ async function main() {
         avatar_url:      avatarUrl,
         active_days:     days,
         gaps,
-        avg_gap:         calcAvgGap(gaps),
+        avg_gap:         calcAvgGap(days),
         current_streak:  calcStreak(dailyMap),
         commits_30:      calcCommits30(dailyMap),
         total_commits:   Math.max(0, totalCommits - scaffoldCount),
