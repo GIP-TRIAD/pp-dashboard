@@ -429,6 +429,109 @@
 
     #app { display: none; }
 
+    /* ── SCORING MODAL ── */
+    .how-scores-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 4px;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .how-scores-link:hover { opacity: 0.8; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+    }
+    .modal-header h2 { font-size: 16px; font-weight: 500; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 1.25rem 1.5rem 1.75rem; }
+    .modal-body h3 {
+      font-size: 13px;
+      font-weight: 500;
+      margin: 1.4rem 0 0.5rem;
+      color: var(--text);
+    }
+    .modal-body h3:first-child { margin-top: 0; }
+    .modal-body p { margin-bottom: 0.6rem; color: var(--text); }
+    .modal-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .modal-list {
+      list-style: none;
+      margin: 0.5rem 0 0.75rem;
+    }
+    .modal-list li {
+      padding: 4px 0 4px 14px;
+      border-left: 2px solid var(--border);
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5rem 0 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .modal-table th, .modal-table td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-table th { color: var(--muted); font-weight: 500; }
+    .modal-table td.ok       { color: var(--accent); }
+    .modal-table td.warn-cell{ color: var(--warn); }
+    .modal-table td.bad      { color: var(--danger); }
+    .modal-table-compact th, .modal-table-compact td { text-align: center; }
+    .modal-table-compact th:first-child, .modal-table-compact td:first-child { text-align: left; }
+
     @media (max-width: 600px) {
       .badges { grid-template-columns: 1fr; }
       .rank-row { grid-template-columns: 24px 32px 1fr 56px; }
@@ -509,7 +612,68 @@
   </main>
 </div>
 
+<div id="scoring-modal-overlay" class="modal-overlay" onclick="if(event.target===this) closeScoringModal()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="scoring-modal-title">
+    <div class="modal-header">
+      <h2 id="scoring-modal-title">How scores are calculated</h2>
+      <button type="button" class="modal-close" onclick="closeScoringModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <p>Your score is out of <strong>100 points</strong> and is built entirely from how <em>regularly</em> you commit — not how much code you write, and not your total commit count.</p>
+
+      <h3>1. Only your active days count</h3>
+      <p>Multiple commits on the same day count as one "active day." What matters is the gap, in days, between one active day and the next.</p>
+
+      <h3>2. Each gap earns points on a sliding scale</h3>
+      <table class="modal-table">
+        <thead><tr><th>Gap between commits</th><th>Points earned</th></tr></thead>
+        <tbody>
+          <tr><td>≤ 7 days</td><td class="ok">Full points (11.1)</td></tr>
+          <tr><td>8–10 days</td><td class="warn-cell">Partial points (4.4)</td></tr>
+          <tr><td>11+ days</td><td class="bad">Zero points</td></tr>
+        </tbody>
+      </table>
+      <p class="modal-note">Those points add up across all your gaps, up to a maximum of 100 — that's what "100 pts over 90 days" means: committing roughly weekly for the whole window earns a perfect score.</p>
+
+      <h3>3. Staying silent right now costs you — gradually</h3>
+      <p>The gaps above only describe your <em>past</em> commits. They can't see that you might be silent <em>right now</em>. So your score also tapers down the longer it's been since your last commit:</p>
+      <ul class="modal-list">
+        <li><strong>0–7 days</strong> since your last commit: no penalty at all.</li>
+        <li><strong>8–21 days</strong>: your score eases downward, a little more each day.</li>
+        <li><strong>21+ days</strong>: your score is held at a 20-point floor.</li>
+      </ul>
+      <p class="modal-note">This replaced an older, harsher rule where the score sat completely unchanged for 13 days, then suddenly dropped on day 14. Now it's gradual — and reversible: <strong>the instant you commit again, the taper lifts and your score is recalculated fresh.</strong> Nothing is ever lost or held against you — the taper never pushes your score below the 20-point floor, and never above what your actual commit history earned.</p>
+
+      <h3>Example</h3>
+      <p>A student who'd built up a perfect 100 by committing weekly, then goes quiet:</p>
+      <table class="modal-table modal-table-compact">
+        <thead><tr><th>Days since last commit</th><th>7</th><th>10</th><th>14</th><th>18</th><th>21+</th></tr></thead>
+        <tbody>
+          <tr><td>Score</td><td>100</td><td>83</td><td>60</td><td>37</td><td>20</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+
 <script>
+function openScoringModal() {
+  document.getElementById('scoring-modal-overlay').classList.add('open');
+  document.addEventListener('keydown', closeScoringModalOnEsc);
+}
+function closeScoringModal() {
+  document.getElementById('scoring-modal-overlay').classList.remove('open');
+  document.removeEventListener('keydown', closeScoringModalOnEsc);
+}
+function closeScoringModalOnEsc(e) {
+  if (e.key === 'Escape') closeScoringModal();
+}
+</script>
+
+<script>
+
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const POINTS_PER_GAP = 100 / 9;  // ~11.11 — perfect score over 90 days = 9 ideal gaps (~weekly commits)
 
@@ -544,9 +708,33 @@ function calcScore(student) {
   const { gaps, days_since_last } = student;
   if (!gaps || gaps.length === 0) return 0;
   const raw = gaps.reduce((sum, g) => sum + scoreGap(g), 0);
-  let score = Math.min(100, Math.round(raw));
-  if (days_since_last >= 14) score = Math.min(score, 20);
-  return score;
+  const historicalScore = Math.min(100, Math.round(raw));
+  return applyInactivityTaper(historicalScore, days_since_last);
+}
+
+// ── INACTIVITY TAPER ────────────────────────────────────────────────────────
+// The score above reflects the gaps *between* recorded commits, so it says
+// nothing about an ongoing silence after the last one. Previously that was
+// patched with a hard cliff (score capped at 20 once days_since_last hit 14),
+// which meant a 100 sat unchanged for 13 days then dropped to 20 overnight.
+//
+// This tapers it instead: no penalty for the first week of silence, then a
+// gradual slide toward the 20pt floor over the following two weeks. It only
+// ever pulls a score DOWN toward the floor — never below it, never above the
+// historical score — and it's recomputed fresh every time from
+// historicalScore + days_since_last, so nothing is permanently lost: the
+// moment the student commits again, days_since_last resets to 0 and the
+// taper lifts immediately.
+const TAPER_GRACE_DAYS = 7;  // no penalty through this many days of silence
+const TAPER_FLOOR      = 20; // score never tapers below this
+const TAPER_END_DAYS   = 21; // fully at the floor by this many days of silence
+
+function applyInactivityTaper(historicalScore, daysSinceLast) {
+  if (daysSinceLast == null || daysSinceLast <= TAPER_GRACE_DAYS) return historicalScore;
+  if (daysSinceLast >= TAPER_END_DAYS) return Math.min(historicalScore, TAPER_FLOOR);
+  const t = (daysSinceLast - TAPER_GRACE_DAYS) / (TAPER_END_DAYS - TAPER_GRACE_DAYS);
+  const tapered = historicalScore - (historicalScore - TAPER_FLOOR) * t;
+  return Math.round(Math.min(historicalScore, tapered));
 }
 
 // ── MILESTONES ────────────────────────────────────────────────────────────────
@@ -886,8 +1074,9 @@ function buildLeaderboard(students) {
     el.appendChild(err);
   });
 
-  document.getElementById('scoring-note').textContent =
-    'Score: 100 pts over 90 days. Full points for gaps ≤7 days · partial (8–10d) · zero (11d+) · capped at 20 if no activity in 14+ days.';
+  document.getElementById('scoring-note').innerHTML =
+    'Score: 100 pts over 90 days. Full points for gaps ≤7 days · partial (8–10d) · zero (11d+) · score tapers toward a 20-pt floor after a week of silence. ' +
+    '<button type="button" class="how-scores-link" onclick="openScoringModal()">How scores work →</button>';
 }
 
 // ── BADGES ────────────────────────────────────────────────────────────────────
