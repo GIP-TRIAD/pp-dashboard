@@ -291,13 +291,20 @@
       margin-top: 2px;
     }
 
-    /* ── MILESTONE BADGES ON ROW ── */
-    .milestone-badges {
+    .user-meta-secondary {
       display: flex;
-      gap: 3px;
+      align-items: center;
       flex-wrap: wrap;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
       margin-top: 4px;
     }
+
+    .tie-label { white-space: nowrap; }
+
+    .milestone-badges { display: inline-flex; gap: 3px; }
 
     .mbadge {
       font-size: 14px;
@@ -1064,20 +1071,30 @@ function buildLeaderboard(students) {
     const onARoll = isOnARoll(s);
     const milestones = earnedMilestones(s);
 
-    let tieMeta = '';
+    let tieLabel = '';
     if (i < sorted.length - 1 && calcScore(sorted[i + 1]) === score) {
       const reason = tiebreakReason(s, sorted[i + 1]);
-      tieMeta = ` · ranked by ${reason}`;
+      tieLabel = `ranked by ${reason}`;
     }
 
-    const meta = `streak ${s.current_streak}d · ${s.total_commits ?? s.commits_30} commits total${tieMeta}`;
+    const primaryMeta = `streak ${s.current_streak}d · ${s.total_commits ?? s.commits_30} commits total`;
 
     const rollTag = onARoll ? '<span class="on-a-roll">on a roll 🔥</span>' : '';
 
-    const milestoneBadges = milestones.length
-      ? `<div class="milestone-badges">${milestones.map(m =>
+    const milestoneBadgesHtml = milestones.length
+      ? `<span class="milestone-badges">${milestones.map(m =>
           `<span class="mbadge" title="${m.label}">${m.icon}</span>`
-        ).join('')}</div>`
+        ).join('')}</span>`
+      : '';
+
+    // Tie-break reason and milestone badges share one line, so a tie
+    // ("ranked by commits (30d)") never wraps mid-phrase onto its own line
+    // and badges never end up stranded on a third line by themselves.
+    const secondaryParts = [];
+    if (tieLabel) secondaryParts.push(`<span class="tie-label">${tieLabel}</span>`);
+    if (milestoneBadgesHtml) secondaryParts.push(milestoneBadgesHtml);
+    const secondaryMeta = secondaryParts.length
+      ? `<div class="user-meta-secondary">${secondaryParts.join(' ')}</div>`
       : '';
 
     const nameHtml = s.repo_url
@@ -1091,8 +1108,8 @@ function buildLeaderboard(students) {
       <div class="avatar" style="background:${s.avatar_url ? 'transparent' : bg};color:${fg}">${avatarHtml}</div>
       <div>
         <div class="user-name">${nameHtml}${rollTag}</div>
-        <div class="user-meta">${meta}</div>
-        ${milestoneBadges}
+        <div class="user-meta">${primaryMeta}</div>
+        ${secondaryMeta}
       </div>
       <div>
         <div class="activity-strip">${strip}</div>
