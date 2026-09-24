@@ -321,12 +321,66 @@
       letter-spacing: 0.04em;
     }
 
-    .activity-strip { display: flex; gap: 2px; align-items: center; }
+    .activity-strip { display: flex; gap: 3px; align-items: center; }
 
     .abox {
-      width: 7px; height: 16px;
-      border-radius: 1px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
       flex-shrink: 0;
+      box-sizing: border-box;
+    }
+    .abox-on  { background: var(--accent); }
+    .abox-off { background: transparent; border: 1px solid var(--border); }
+
+    .strip-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      margin-top: 3px;
+    }
+
+    .info-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1;
+      cursor: help;
+    }
+
+    .info-icon::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 130%;
+      right: -6px;
+      width: 190px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      line-height: 1.45;
+      font-weight: 400;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 6px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .info-icon:hover::after,
+    .info-icon:focus-visible::after {
+      opacity: 1;
+      visibility: visible;
     }
 
     .score-block { text-align: right; }
@@ -643,8 +697,6 @@
         <li><strong>8–21 days</strong>: your score eases downward, a little more each day.</li>
         <li><strong>21+ days</strong>: your score is held at a 20-point floor.</li>
       </ul>
-      <p class="modal-note">This replaced an older, harsher rule where the score sat completely unchanged for 13 days, then suddenly dropped on day 14. Now it's gradual — and reversible: <strong>the instant you commit again, the taper lifts and your score is recalculated fresh.</strong> Nothing is ever lost or held against you — the taper never pushes your score below the 20-point floor, and never above what your actual commit history earned.</p>
-
       <h3>Example</h3>
       <p>A student who'd built up a perfect 100 by committing weekly, then goes quiet:</p>
       <table class="modal-table modal-table-compact">
@@ -681,14 +733,12 @@ const PALETTE = {
   dark: {
     empty: '#1a1a1a',
     scale: ['#0d2b1a','#145228','#1e7a3a','#28a84e','#3dd668'],
-    stripOn: '#3dd66860', stripOff: '#1e1e1e',
     av: [['#1a3a2a','#3dd668'],['#1a2a3a','#3d9dd6'],['#3a2a1a','#d69d3d'],
          ['#2a1a3a','#9d3dd6'],['#1a3a3a','#3dd6d6'],['#3a1a2a','#d63d9d']]
   },
   light: {
     empty: '#eceae4',
     scale: ['#eaf3de','#c0dd97','#97c459','#639922','#3b6d11'],
-    stripOn: '#63992260', stripOff: '#e4e2dc',
     av: [['#e1f5ee','#085041'],['#e6f1fb','#0c447c'],['#faeeda','#633806'],
          ['#eeedfe','#3c3489'],['#e1f5f5','#0a4444'],['#fbeaf0','#72243e']]
   }
@@ -988,10 +1038,10 @@ function buildTicker(students) {
 // ── LEADERBOARD ───────────────────────────────────────────────────────────────
 
 function buildActivityStrip(last30) {
-  const p = pal();
   return (last30 || []).map(d => {
     const on = d.count > 0;
-    return `<div class="abox" style="background:${on ? p.stripOn : p.stripOff}" title="${d.date}${on ? ': ' + d.count + ' commit' + (d.count !== 1 ? 's' : '') : ''}"></div>`;
+    const title = `${d.date}${on ? ': ' + d.count + ' commit' + (d.count !== 1 ? 's' : '') : ''}`;
+    return `<div class="abox ${on ? 'abox-on' : 'abox-off'}" title="${title}"></div>`;
   }).join('');
 }
 
@@ -1046,7 +1096,10 @@ function buildLeaderboard(students) {
       </div>
       <div>
         <div class="activity-strip">${strip}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;text-align:right">last 30d</div>
+        <div class="strip-label-row">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">last 30d</span>
+          <span class="info-icon" tabindex="0" data-tooltip="Shows which days you committed — filled means at least one commit that day. Extra commits on the same day don't add extra score.">ⓘ</span>
+        </div>
       </div>
       <div class="score-block">
         <div class="score-val">${score}</div>
