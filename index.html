@@ -1143,12 +1143,16 @@ function buildAlerts(students) {
 
   late.forEach(s => {
     const d = s.days_since_last;
-    const isDanger = d >= 14;
+    const isTapering = d > TAPER_GRACE_DAYS;   // matches calcScore's grace period
+    const isDanger    = d >= TAPER_END_DAYS;   // matches when the taper hits the floor
+    const currentScore = calcScore(s);
     const row = document.createElement('div');
     row.className = `alert-row ${isDanger ? 'danger' : 'warn'}`;
     const msg = isDanger
-      ? `score capped at 20`
-      : `no commit in over a week`;
+      ? `score held at floor (${currentScore})`
+      : isTapering
+        ? `score tapering — now ${currentScore}`
+        : `no commit in over a week`;
     const nameHtml = s.repo_url
       ? `<a class="repo-link" href="${s.repo_url}" target="_blank" rel="noopener">${s.name}</a>`
       : s.name;
