@@ -223,7 +223,7 @@
 
     .rank-row {
       display: grid;
-      grid-template-columns: 28px 36px 1fr auto 64px;
+      grid-template-columns: 28px 36px max-content max-content max-content;
       align-items: center;
       gap: 12px;
       padding: 10px 14px;
@@ -328,16 +328,23 @@
       letter-spacing: 0.04em;
     }
 
-    .activity-strip { display: flex; gap: 3px; align-items: center; }
+    .activity-strip {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 3px;
+      align-items: center;
+    }
 
     .abox {
-      width: 8px; height: 8px;
+      width: 11px; height: 11px;
       border-radius: 50%;
       flex-shrink: 0;
       box-sizing: border-box;
     }
     .abox-on  { background: var(--accent); }
     .abox-off { background: transparent; border: 1px solid var(--border); }
+
+    .strip-wrapper { margin: 0 6px; }
 
     .strip-label-row {
       display: flex;
@@ -1111,7 +1118,7 @@ function buildLeaderboard(students) {
         <div class="user-meta">${primaryMeta}</div>
         ${secondaryMeta}
       </div>
-      <div>
+      <div class="strip-wrapper">
         <div class="activity-strip">${strip}</div>
         <div class="strip-label-row">
           <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">last 30d</span>
