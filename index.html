@@ -1180,9 +1180,14 @@ function buildBadges(students) {
 
   const byGap    = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
 
+  // A single active day isn't a "streak"
+  const streakVal = byStreak.current_streak >= 2
+    ? `${byStreak.current_streak} days`
+    : '—';
+
   const badges = [
     { label: 'Top score',      name: byScore.name,  val: `${byScore.score} pts`, url: byScore.repo_url },
-    { label: 'Current streak', name: byStreak.name, val: `${byStreak.current_streak} days`, url: byStreak.repo_url },
+    { label: 'Current streak', name: byStreak.name, val: streakVal, url: byStreak.repo_url },
     { label: 'Best avg gap',   name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—', url: byGap ? byGap.repo_url : null }
   ];
 
