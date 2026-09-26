@@ -20,6 +20,12 @@ jobs:
           GH_TOKEN: ${{ secrets.MENTOR_GITHUB_TOKEN }}
         run: node scripts/fetch-commits.js
 
+      - name: Notify students who've gone quiet
+        env:
+          GH_TOKEN: ${{ secrets.MENTOR_GITHUB_TOKEN }}
+          INACTIVITY_THRESHOLD_DAYS: '10'
+        run: node scripts/notify-inactive.js
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
