@@ -1172,22 +1172,19 @@ function buildBadges(students) {
   // Same problem for streak: a plain sort on current_streak alone lets ties
   // fall back to array order. Break ties the same way tiebreakReason() does
   // elsewhere — more commits in the window wins, then tighter avg gap.
-  const byStreak = [...valid].sort((a, b) => {
-    if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
-    if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
-    return a.avg_gap - b.avg_gap;
-  })[0];
+  const byStreak = [...valid]
+    .filter(s => s.current_streak >= 2)
+    .sort((a, b) => {
+      if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
+      if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
+      return a.avg_gap - b.avg_gap;
+    })[0];
 
   const byGap    = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
 
-  // A single active day isn't a "streak"
-  const streakVal = byStreak.current_streak >= 2
-    ? `${byStreak.current_streak} days`
-    : '—';
-
   const badges = [
     { label: 'Top score',      name: byScore.name,  val: `${byScore.score} pts`, url: byScore.repo_url },
-    { label: 'Current streak', name: byStreak.name, val: streakVal, url: byStreak.repo_url },
+    { label: 'Current streak', name: byStreak ? byStreak.name : '—', val: byStreak ? `${byStreak.current_streak} days` : '—', url: byStreak ? byStreak.repo_url : null },
     { label: 'Best avg gap',   name: byGap ? byGap.name : '—', val: byGap ? `every ${byGap.avg_gap}d` : '—', url: byGap ? byGap.repo_url : null }
   ];
 
