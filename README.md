@@ -1,16 +1,14 @@
+<h1 align="center" style="margin:0;">
+ <a href="https://gip-triad.github.io/pp-dashboard/">
+        <img src="./assets/banner.png" alt="dashboard banner", width="600">
+</h1>
+<br>
+<h3 align="center" style="margin: 0; margin-top: 0;">
+A leaderboard-style dashboard that tracks student commit activity, scores their consistency, and automatically nudges anyone who's gone quiet.
+</h3>
 
-Dashboard for the GIP-TRIAD _Professional Project_.
+<br>
 
-
-# Professional Project Writing Dashboard
-
-🔗 <https://gip-triad.github.io/pp-dashboard/>
-
-A leaderboard-style dashboard that tracks student commit activity across their
-individual project repos, scores their consistency, and automatically nudges
-anyone who's gone quiet.
-
-Live view: `index.html`, reading from `data.json`.
 
 ## How it works
 
@@ -22,23 +20,6 @@ Everything is driven by a scheduled GitHub Action
    there's no backend, it's a static page.
 2. **Notifies inactive students** (`scripts/notify-inactive.js`) — see below.
 3. **Commits `data.json`** back to this repo so the dashboard stays current.
-
-You can also trigger a run manually from the Actions tab
-(`workflow_dispatch`), which is useful for testing changes without waiting
-for the cron.
-
-## Scoring & badges
-
-- **Score**: based on the gaps between a student's commits, capped at 100.
-  If a student has gone quiet, the score isn't cliff-dropped — it tapers
-  gradually toward a floor of 20 starting after 7 days of silence, fully
-  bottoming out at 21 days. It recovers immediately on their next commit.
-- **Current streak**: consecutive days committed. Shown only at 2+ days —
-  a single active day isn't a "streak."
-- **On a roll 🔥**: at least one commit in every 3-day window over the last
-  4 weeks.
-- **Milestones**: first commit, 10/25/50 total commits, on-a-roll, and score
-  thresholds at 50 and 100.
 
 ## Automatic inactivity nudges
 
