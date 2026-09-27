@@ -53,7 +53,7 @@ is fetched, using the same `MENTOR_GITHUB_TOKEN` secret.
 | File | Purpose |
 |---|---|
 | `index.html` | The dashboard itself — static, reads `data.json` |
-| `data.json` | Generated automatically — don't edit by hand |
+| `data.json` | Generated automatically |
 | `.github/workflows/fetch-commits.yml` | Daily scheduled Action |
 | `scripts/fetch-commits.js` | Pulls commit history into `data.json` |
 | `scripts/notify-inactive.js` | Opens/closes inactivity nudge issues |
