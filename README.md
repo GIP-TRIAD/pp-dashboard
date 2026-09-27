@@ -1,14 +1,13 @@
 <h1 align="center" style="margin:0;">
  <a href="https://gip-triad.github.io/pp-dashboard/">
-        <img src="./assets/banner.png" alt="dashboard banner", width="600">
+        <img src="./assets/banner.png" alt="dashboard banner" style="width: 100%; height: auto;>
 </h1>
+
 <br>
 <h3 align="center" style="margin: 0; margin-top: 0;">
 A leaderboard-style dashboard that tracks student commit activity, scores their consistency, and automatically nudges anyone who's gone quiet.
 </h3>
-
 <br>
-
 
 ## How it works
 
