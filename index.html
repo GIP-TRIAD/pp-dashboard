@@ -743,6 +743,22 @@ function closeScoringModalOnEsc(e) {
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const POINTS_PER_GAP = 100 / 9;  // ~11.11 — perfect score over 90 days = 9 ideal gaps (~weekly commits)
 
+// Fixed heatmap period (inclusive, YYYY-MM-DD). Does not move with the current
+// date. Can be overridden by "heatmap_start" / "heatmap_end" in data.json.
+const HEATMAP_START = '2026-09-01';
+const HEATMAP_END   = '2026-12-31';
+
+function parseLocalDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function localDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 const PALETTE = {
   dark: {
     empty: '#1a1a1a',
@@ -954,9 +970,8 @@ function buildHeatmap(students) {
   // "today": 1st of the current month through the last day of the 4th month
   // (e.g. Sep 1 → Dec 31), so the heatmap reflects the real semester length
   // instead of an arbitrary trailing 6 months.
-  const today = new Date();
-  const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-  const endDate   = new Date(startDate.getFullYear(), startDate.getMonth() + 4, 0);
+  const startDate = parseLocalDate((DATA && DATA.heatmap_start) || HEATMAP_START);
+  const endDate   = parseLocalDate((DATA && DATA.heatmap_end)   || HEATMAP_END);
   const totalDays = Math.round((endDate - startDate) / 86400000) + 1;
   const weeks = Math.ceil(totalDays / 7);
 
@@ -999,7 +1014,7 @@ function buildHeatmap(students) {
         continue;
       }
 
-      const key = date.toISOString().slice(0, 10);
+      const key = localDateKey(date);
       const val = dayMap[key] || 0;
 
       const cell = document.createElement('div');
