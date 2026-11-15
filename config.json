@@ -3,6 +3,7 @@
   "semester": "2026-2027",
   "org": "GIP-TRIAD",
   "repo_prefix": "professional-project-",
+  "timezone": "Asia/Tokyo",
   "students": [
     { "name": "Bino", "slug": "bino" },
     { "name": "Midori K.", "slug": "midorik" },
