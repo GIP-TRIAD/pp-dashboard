@@ -223,7 +223,11 @@
 
     .rank-row {
       display: grid;
-      grid-template-columns: 28px 36px max-content max-content max-content;
+      /* Fixed-width strip and score columns, flexible info column:
+         every row resolves to identical column positions. minmax(0,1fr)
+         lets the info column shrink so long content wraps instead of
+         pushing the strip and score sideways. */
+      grid-template-columns: 28px 36px minmax(0, 1fr) 417px 52px;
       align-items: center;
       gap: 12px;
       padding: 10px 14px;
@@ -344,7 +348,7 @@
     .abox-on  { background: var(--accent); }
     .abox-off { background: transparent; border: 1px solid var(--border); }
 
-    .strip-wrapper { margin: 0 6px; }
+    .strip-wrapper { margin: 0; width: 417px; }
 
     .strip-label-row {
       display: flex;
@@ -603,7 +607,7 @@
     @media (max-width: 600px) {
       .badges { grid-template-columns: 1fr; }
       .rank-row { grid-template-columns: 24px 32px 1fr 56px; }
-      .activity-strip { display: none; }
+      .strip-wrapper { display: none; }
       header { padding: 1.25rem 1.25rem 1rem; }
       main { padding: 1.5rem 1.25rem 3rem; }
       .milestone-ticker { display: none; }
