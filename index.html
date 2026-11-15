@@ -665,6 +665,116 @@
     .modal-table-compact th, .modal-table-compact td { text-align: center; }
     .modal-table-compact th:first-child, .modal-table-compact td:first-child { text-align: left; }
 
+    /* ── STUDENT HISTORY PANEL ── */
+    .rank-row { cursor: pointer; }
+    .rank-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .modal-wide { max-width: 760px; }
+
+    .hist-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .hist-title h2 { font-size: 16px; font-weight: 500; }
+    .hist-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .hist-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .hist-stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .hist-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .hist-stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .hist-stat-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .hist-section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    .hist-cal-wrap { overflow-x: auto; padding-bottom: 4px; }
+    .hist-cal-inner { display: inline-block; min-width: 100%; }
+    .hist-cal { display: flex; }
+    .hist-wd { display: flex; flex-direction: column; gap: 3px; width: 24px; margin-right: 4px; flex-shrink: 0; }
+    .hist-wd span {
+      height: 13px;
+      line-height: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    .hc-on     { background: var(--accent); }
+    .hc-off    { background: var(--cempty); }
+    .hc-warn   { background: color-mix(in srgb, var(--warn) 55%, var(--cempty)); }
+    .hc-danger { background: color-mix(in srgb, var(--danger) 55%, var(--cempty)); }
+
+    .hist-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .hist-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .hist-legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+
+    .hist-chart { width: 100%; height: auto; display: block; }
+    .hist-grid { stroke: var(--border); stroke-width: 1; }
+    .hist-axis { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--muted); }
+    .hist-line { fill: none; stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
+    .hist-line.score, .hist-dot.score { stroke: var(--accent); }
+    .hist-dot.score { fill: var(--accent); }
+    .hist-line.rank, .hist-dot.rank { stroke: var(--text); }
+    .hist-dot.rank { fill: var(--text); }
+    .hist-dot { stroke-width: 0; }
+    .hist-caption {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .hist-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 1.25rem;
+      line-height: 1.7;
+    }
+
     @media (max-width: 600px) {
       .badges { grid-template-columns: 1fr; }
       .rank-row { grid-template-columns: 24px 32px 1fr 56px; }
@@ -787,6 +897,16 @@
       </table>
 
     </div>
+  </div>
+</div>
+
+<div id="history-modal-overlay" class="modal-overlay" onclick="if(event.target===this) closeHistoryModal()">
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">
+    <div class="modal-header">
+      <div class="hist-title" id="history-modal-title"></div>
+      <button type="button" class="modal-close" onclick="closeHistoryModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="history-modal-body"></div>
   </div>
 </div>
 
@@ -1211,6 +1331,22 @@ function buildLeaderboard(students) {
         <div class="score-label">/ 100</div>
       </div>
     `;
+    // Clicking anywhere on the row (except the repo link / tooltip icon)
+    // opens the full history panel.
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
+    row.setAttribute('aria-label', `Open commit history for ${s.name}`);
+    row.addEventListener('click', e => {
+      if (e.target.closest('a, .info-icon')) return;
+      openHistory(s);
+    });
+    row.addEventListener('keydown', e => {
+      if (e.target === row && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        openHistory(s);
+      }
+    });
+
     el.appendChild(row);
   });
 
@@ -1326,6 +1462,281 @@ function buildAlerts(students) {
     `;
     el.appendChild(row);
   });
+}
+
+// ── STUDENT HISTORY PANEL ─────────────────────────────────────────────────────
+// Opened by clicking a leaderboard row. Everything is derived client-side from
+// student.active_days (unique commit dates), so no change to data.json is needed.
+// Day numbers are UTC-based integers (days since epoch) to avoid DST drift.
+
+const DAY_MS = 86400000;
+const HISTORY_WINDOW_DAYS = 90;  // matches the "100 pts over 90 days" scoring note
+const WEEKDAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+function dayNum(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return Date.UTC(y, m - 1, d) / DAY_MS;
+}
+function todayNum() {
+  const n = new Date();
+  return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) / DAY_MS;
+}
+function weekStartNum(n) { return n - ((n + 3) % 7); }  // Monday of that week
+function fmtDayNum(n, withYear) {
+  return new Date(n * DAY_MS).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}), timeZone: 'UTC'
+  });
+}
+function escHtml(str) {
+  return String(str).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function activeDayNums(s) {
+  return [...new Set((s.active_days || []).map(dayNum))].sort((a, b) => a - b);
+}
+
+// Score as it would have been on day D, using the same rules as calcScore():
+// gaps between active days inside a trailing 90-day window + inactivity taper.
+function scoreAtDay(nums, D) {
+  let hi = 0;
+  while (hi < nums.length && nums[hi] <= D) hi++;
+  if (hi === 0) return 0;
+  let raw = 0, i = hi - 1;
+  while (i > 0 && nums[i - 1] >= D - HISTORY_WINDOW_DAYS) {
+    raw += scoreGap(nums[i] - nums[i - 1]);
+    i--;
+  }
+  return applyInactivityTaper(Math.min(100, Math.round(raw)), D - nums[hi - 1]);
+}
+
+// Weekly score + rank for every student, computed once on first use.
+// The final sample (today) uses the live leaderboard values so the last point
+// always agrees with the main page.
+let TEAM_HISTORY = null;
+function getTeamHistory() {
+  if (TEAM_HISTORY) return TEAM_HISTORY;
+  const valid = DATA.students.filter(s => !s.error);
+  const nums = new Map(valid.map(s => [s, activeDayNums(s)]));
+  const today = todayNum();
+  const firsts = valid.map(s => nums.get(s)[0]).filter(n => n !== undefined);
+
+  const samples = [];
+  if (firsts.length) {
+    for (let d = weekStartNum(Math.min(...firsts)) + 6; d < today; d += 7) samples.push(d);
+  }
+  samples.push(today);
+  const last = samples.length - 1;
+
+  const ranked = sortStudents(valid);
+  const scores = new Map();
+  valid.forEach(s => {
+    const arr = samples.map(d => scoreAtDay(nums.get(s), d));
+    arr[last] = calcScore(s);
+    scores.set(s, arr);
+  });
+
+  const ranks = new Map(valid.map(s => [s, []]));
+  samples.forEach((_, i) => {
+    valid.forEach(s => {
+      const sc = scores.get(s)[i];
+      ranks.get(s)[i] = i === last
+        ? ranked.indexOf(s) + 1
+        : 1 + valid.filter(o => scores.get(o)[i] > sc).length;
+    });
+  });
+
+  TEAM_HISTORY = { valid, nums, samples, scores, ranks, ranked };
+  return TEAM_HISTORY;
+}
+
+function lineChart({ dates, values, labels, yMin, yMax, invert, ticks, cls }) {
+  const W = 680, H = 130, L = 34, R = 12, T = 12, B = 12;
+  const n = values.length;
+  const xAt = i => n === 1 ? L + (W - L - R) / 2 : L + i * (W - L - R) / (n - 1);
+  const yAt = v => {
+    const t = (v - yMin) / (yMax - yMin);
+    return T + (invert ? t : 1 - t) * (H - T - B);
+  };
+  const grid = ticks.map(v =>
+    `<line class="hist-grid" x1="${L}" x2="${W - R}" y1="${yAt(v).toFixed(1)}" y2="${yAt(v).toFixed(1)}"/>` +
+    `<text class="hist-axis" x="${L - 6}" y="${(yAt(v) + 3).toFixed(1)}" text-anchor="end">${v}</text>`
+  ).join('');
+  const pts = values.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`);
+  const line = n > 1 ? `<polyline class="hist-line ${cls}" points="${pts.join(' ')}"/>` : '';
+  const dots = n <= 60
+    ? values.map((v, i) =>
+        `<circle class="hist-dot ${cls}" cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="2.5">` +
+        `<title>${fmtDayNum(dates[i], true)}: ${labels[i]}</title></circle>`).join('')
+    : '';
+  return `<svg class="hist-chart" viewBox="0 0 ${W} ${H}" role="img">${grid}${line}${dots}</svg>
+    <div class="hist-caption"><span>${fmtDayNum(dates[0], true)}</span><span>${fmtDayNum(dates[n - 1], true)}</span></div>`;
+}
+
+function buildCalendar(nums, today) {
+  const first = nums[0];
+  // Category per day: on = commit; warn/danger = quiet day inside a gap that
+  // earns partial (8–10d) / zero (11d+) points; off = ordinary quiet day.
+  const cat = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    cat.set(nums[i], 'on');
+    const next = nums[i + 1];
+    const end = next !== undefined ? next - 1 : today;
+    for (let d = nums[i] + 1; d <= end; d++) {
+      const len = next !== undefined ? next - nums[i] : d - nums[i];
+      cat.set(d, len >= 11 ? 'danger' : len >= 8 ? 'warn' : 'off');
+    }
+  }
+
+  const ws0 = weekStartNum(first);
+  const weeks = (weekStartNum(today) - ws0) / 7 + 1;
+  let cols = '', months = '', lastMonth = -1;
+  for (let w = 0; w < weeks; w++) {
+    const wsd = ws0 + w * 7;
+    const month = new Date(wsd * DAY_MS).getUTCMonth();
+    months += `<div class="month-label">${month !== lastMonth ? MONTH_NAMES[month] : ''}</div>`;
+    lastMonth = month;
+    let cells = '';
+    for (let d = 0; d < 7; d++) {
+      const n = wsd + d;
+      if (n < first || n > today) {
+        cells += '<div class="day-cell day-cell-empty"></div>';
+        continue;
+      }
+      const c = cat.get(n);
+      cells += `<div class="day-cell hc-${c}" title="${fmtDayNum(n, true)}: ${c === 'on' ? 'committed' : 'no commit'}"></div>`;
+    }
+    cols += `<div class="week-col">${cells}</div>`;
+  }
+
+  const wd = ['Mon', '', 'Wed', '', 'Fri', '', ''].map(t => `<span>${t}</span>`).join('');
+  return `
+    <div class="hist-cal-wrap"><div class="hist-cal-inner">
+      <div class="month-row"><div style="width:25px;flex-shrink:0"></div>${months}</div>
+      <div class="hist-cal"><div class="hist-wd">${wd}</div><div class="heatmap-grid">${cols}</div></div>
+    </div></div>
+    <div class="hist-legend">
+      <span><i class="hc-on"></i>commit</span>
+      <span><i class="hc-off"></i>no commit</span>
+      <span><i class="hc-warn"></i>inside 8–10d gap (partial pts)</span>
+      <span><i class="hc-danger"></i>inside 11d+ gap (zero pts)</span>
+    </div>`;
+}
+
+function studentStats(s, nums, today) {
+  const first = nums[0], last = nums[nums.length - 1];
+  let longestRun = 1, run = 1, longestGap = 0, gapSum = 0;
+  for (let i = 1; i < nums.length; i++) {
+    const g = nums[i] - nums[i - 1];
+    run = g === 1 ? run + 1 : 1;
+    longestRun = Math.max(longestRun, run);
+    longestGap = Math.max(longestGap, g);
+    gapSum += g;
+  }
+  const weekdays = Array(7).fill(0);
+  nums.forEach(n => weekdays[(n + 3) % 7]++);
+  const bestDay = weekdays.indexOf(Math.max(...weekdays));
+  const activeWeeks = new Set(nums.map(weekStartNum)).size;
+  const totalWeeks = (weekStartNum(today) - weekStartNum(first)) / 7 + 1;
+  const span = today - first + 1;
+  return {
+    first, last, span,
+    activeDays: nums.length,
+    activePct: Math.round(nums.length / span * 100),
+    activeWeeks, totalWeeks,
+    weekPct: Math.round(activeWeeks / totalWeeks * 100),
+    longestRun,
+    longestGap: nums.length > 1 ? longestGap : null,
+    avgGap: nums.length > 1 ? gapSum / (nums.length - 1) : null,
+    bestDay: WEEKDAY_NAMES[bestDay],
+    bestDayCount: weekdays[bestDay]
+  };
+}
+
+function statCard(label, val, sub) {
+  return `<div class="hist-stat"><div class="hist-stat-label">${label}</div>` +
+         `<div class="hist-stat-val">${val}</div>` +
+         (sub ? `<div class="hist-stat-sub">${sub}</div>` : '') + '</div>';
+}
+
+function openHistory(s) {
+  const H = getTeamHistory();
+  const nums = H.nums.get(s) || activeDayNums(s);
+  const today = todayNum();
+  const rank = H.ranked.indexOf(s) + 1;
+  const score = calcScore(s);
+  const avColors = pal().av;
+  const [bg, fg] = avColors[DATA.students.indexOf(s) % avColors.length];
+  const initials = s.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const avatar = s.avatar_url
+    ? `<div class="avatar" style="background:transparent"><img src="${escHtml(s.avatar_url)}" alt=""></div>`
+    : `<div class="avatar" style="background:${bg};color:${fg}">${escHtml(initials)}</div>`;
+  const name = s.repo_url
+    ? `<a class="repo-link" href="${escHtml(s.repo_url)}" target="_blank" rel="noopener">${escHtml(s.name)}</a>`
+    : escHtml(s.name);
+
+  document.getElementById('history-modal-title').innerHTML =
+    `${avatar}<div><h2>${name}</h2><div class="hist-sub">rank #${rank} of ${H.valid.length} · score ${score} / 100</div></div>`;
+
+  const body = document.getElementById('history-modal-body');
+  if (!nums.length) {
+    body.innerHTML = '<p class="modal-note">No commits recorded yet.</p>';
+  } else {
+    const st = studentStats(s, nums, today);
+    const ago = n => n === 0 ? 'today' : `${n} day${n !== 1 ? 's' : ''} ago`;
+    const cards = [
+      statCard('Rank', `#${rank}`, `of ${H.valid.length} · score ${score}`),
+      statCard('First commit', fmtDayNum(st.first, true), ago(today - st.first)),
+      statCard('Last commit', fmtDayNum(st.last, true), ago(today - st.last)),
+      statCard('Active days', st.activeDays, `${st.activePct}% of ${st.span} days`),
+      statCard('Total commits', s.total_commits ?? '—',
+        s.total_commits ? `${(s.total_commits / st.activeDays).toFixed(1)} per active day` : ''),
+      statCard('Active weeks', `${st.activeWeeks} / ${st.totalWeeks}`, `${st.weekPct}% of weeks`),
+      statCard('Longest run', `${st.longestRun}d`, 'consecutive days'),
+      statCard('Longest gap', st.longestGap === null ? '—' : `${st.longestGap}d`, 'between commits'),
+      statCard('Average gap', st.avgGap === null ? '—' : `${st.avgGap.toFixed(1)}d`, 'between commits'),
+      statCard('Busiest weekday', st.bestDay, `${st.bestDayCount} active day${st.bestDayCount !== 1 ? 's' : ''}`)
+    ].join('');
+
+    // Chart series start at the sample on/after this student's first commit.
+    const startIdx = Math.max(0, H.samples.findIndex(d => d >= st.first));
+    const dates = H.samples.slice(startIdx);
+    const sc = H.scores.get(s).slice(startIdx);
+    const rk = H.ranks.get(s).slice(startIdx);
+    const labels = sc.map((v, i) => `score ${v}, rank #${rk[i]}`);
+    const N = H.valid.length;
+
+    const scoreChart = lineChart({
+      dates, values: sc, labels, yMin: 0, yMax: 100, invert: false, ticks: [0, 50, 100], cls: 'score'
+    });
+    const rankChart = N > 1
+      ? lineChart({
+          dates, values: rk, labels, yMin: 1, yMax: N, invert: true,
+          ticks: N > 2 ? [1, Math.ceil(N / 2), N] : [1, N], cls: 'rank'
+        })
+      : '<p class="modal-note">Rank history needs at least two students.</p>';
+
+    body.innerHTML = `
+      <div class="hist-stats">${cards}</div>
+      <div class="hist-section-title">Commit history · ${fmtDayNum(st.first, true)} to today</div>
+      ${buildCalendar(nums, today)}
+      <div class="hist-section-title">Score over time</div>
+      ${scoreChart}
+      <div class="hist-section-title">Rank over time (1 = top)</div>
+      ${rankChart}
+      <div class="hist-note">Score and rank history is reconstructed from commit dates at weekly intervals
+      (trailing ${HISTORY_WINDOW_DAYS}-day window, same scoring rules); the last point is the live value.
+      Ties in past weeks share the better rank.</div>`;
+  }
+
+  document.getElementById('history-modal-overlay').classList.add('open');
+  document.addEventListener('keydown', closeHistoryOnEsc);
+}
+function closeHistoryModal() {
+  document.getElementById('history-modal-overlay').classList.remove('open');
+  document.removeEventListener('keydown', closeHistoryOnEsc);
+}
+function closeHistoryOnEsc(e) {
+  if (e.key === 'Escape') closeHistoryModal();
 }
 
 // Scrolls the alert list vertically (like the milestone ticker) when it is
