@@ -148,6 +148,25 @@ function activeDays(dailyMap) {
   return Object.keys(dailyMap).sort();
 }
 
+// Time-of-day histogram: 24 counts, index = hour 0–23.
+// GitHub returns commit.author.date in UTC ("...Z"), so hours are converted to
+// config.timezone (an IANA name such as "Europe/Paris") when set; otherwise UTC.
+const HOUR_TZ = config.timezone || 'UTC';
+const hourFormatter = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit', hourCycle: 'h23', timeZone: HOUR_TZ
+});
+
+function toHourHistogram(commits) {
+  const hours = Array(24).fill(0);
+  for (const c of commits) {
+    const iso = c.commit?.author?.date;
+    if (!iso) continue;
+    const h = parseInt(hourFormatter.format(new Date(iso)), 10);
+    if (h >= 0 && h < 24) hours[h]++;
+  }
+  return hours;
+}
+
 function calcGaps(days) {
   const gaps = [];
   for (let i = 1; i < days.length; i++) {
@@ -260,6 +279,11 @@ async function main() {
       const scaffoldCount = allCommits.filter(c => isScaffoldCommit(c, createdAt)).length;
       const realCommits   = commits.filter(c => !isScaffoldCommit(c, createdAt));
 
+      // Full-history, scaffold-free commits for the detail panel's charts
+      // (commits per week, time of day). Scoring fields below keep using the
+      // 90-day window (realCommits) and are unchanged.
+      const allRealCommits = allCommits.filter(c => !isScaffoldCommit(c, createdAt));
+
       const dailyMap    = toDailyMap(realCommits);
       const days        = activeDays(dailyMap);
       const gaps        = calcGaps(days);
@@ -289,7 +313,9 @@ async function main() {
         total_commits:   Math.max(0, totalCommits - scaffoldCount),
         last30,
         last_commit:     lastCommit,
-        days_since_last: daysSinceLast
+        days_since_last: daysSinceLast,
+        daily_commits:   toDailyMap(allRealCommits),
+        commit_hours:    toHourHistogram(allRealCommits)
       });
 
     } catch (err) {
@@ -306,7 +332,9 @@ async function main() {
         total_commits:   0,
         last30:          [],
         last_commit:     null,
-        days_since_last: 999
+        days_since_last: 999,
+        daily_commits:   {},
+        commit_hours:    Array(24).fill(0)
       });
     }
   }

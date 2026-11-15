@@ -759,6 +759,15 @@
     .hist-line.rank, .hist-dot.rank { stroke: var(--text); }
     .hist-dot.rank { fill: var(--text); }
     .hist-dot { stroke-width: 0; }
+    .hist-bar { fill: var(--accent); opacity: 0.85; }
+    .hist-hit { fill: transparent; }
+    .hist-hit:hover + .hist-bar, .hist-bar:hover { opacity: 1; }
+    .hist-compare-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
     .hist-caption {
       display: flex;
       justify-content: space-between;
@@ -1658,6 +1667,140 @@ function statCard(label, val, sub) {
          (sub ? `<div class="hist-stat-sub">${sub}</div>` : '') + '</div>';
 }
 
+// ── TEAM MEDIAN COMPARISON ────────────────────────────────────────────────────
+function median(arr) {
+  if (!arr.length) return null;
+  const a = [...arr].sort((x, y) => x - y);
+  const m = a.length >> 1;
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
+
+let TEAM_MEDIANS = null;
+function getTeamMedians() {
+  if (TEAM_MEDIANS) return TEAM_MEDIANS;
+  const H = getTeamHistory();
+  const today = todayNum();
+  const rows = H.valid
+    .filter(s => H.nums.get(s).length)
+    .map(s => ({ s, st: studentStats(s, H.nums.get(s), today), score: calcScore(s) }));
+  const pick = f => median(rows.map(f).filter(v => v !== null && v !== undefined && !isNaN(v)));
+  TEAM_MEDIANS = {
+    n: rows.length,
+    score:      pick(r => r.score),
+    activeDays: pick(r => r.st.activeDays),
+    activePct:  pick(r => r.st.activePct),
+    commits30:  pick(r => r.s.commits_30),
+    avgGap:     pick(r => r.st.avgGap),
+    longestGap: pick(r => r.st.longestGap)
+  };
+  return TEAM_MEDIANS;
+}
+
+function buildComparison(s, st, score) {
+  const M = getTeamMedians();
+  if (M.n < 2) return '<p class="modal-note">Comparison needs at least two students with commits.</p>';
+  const defs = [
+    { label: 'Score',            v: score,          m: M.score,      hi: true,  dec: 0, unit: '' },
+    { label: 'Active days',      v: st.activeDays,  m: M.activeDays, hi: true,  dec: 0, unit: '' },
+    { label: 'Active-day share', v: st.activePct,   m: M.activePct,  hi: true,  dec: 0, unit: '%' },
+    { label: 'Commits (30d)',    v: s.commits_30,   m: M.commits30,  hi: true,  dec: 0, unit: '' },
+    { label: 'Average gap',      v: st.avgGap,      m: M.avgGap,     hi: false, dec: 1, unit: 'd' },
+    { label: 'Longest gap',      v: st.longestGap,  m: M.longestGap, hi: false, dec: 0, unit: 'd' }
+  ];
+  const rows = defs.map(d => {
+    if (d.v == null || d.m == null) {
+      return `<tr><td>${d.label}</td><td>—</td><td>${d.m == null ? '—' : +d.m.toFixed(d.dec) + d.unit}</td><td>—</td></tr>`;
+    }
+    const diff = d.v - d.m;
+    let cls = '', txt = 'at median';
+    if (Math.abs(diff) >= Math.pow(10, -d.dec) / 2) {
+      const good = d.hi ? diff > 0 : diff < 0;
+      cls = good ? 'ok' : 'warn-cell';
+      txt = `${diff > 0 ? '+' : '−'}${Math.abs(diff).toFixed(d.dec)}${d.unit} · ${good ? 'better' : 'worse'}`;
+    }
+    return `<tr><td>${d.label}</td><td>${+d.v.toFixed(d.dec)}${d.unit}</td>` +
+           `<td>${+d.m.toFixed(d.dec)}${d.unit}</td><td class="${cls}">${txt}</td></tr>`;
+  }).join('');
+  return `<table class="modal-table">
+      <thead><tr><th>Metric</th><th>This student</th><th>Team median</th><th>Difference</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    <div class="hist-compare-note">Median of ${M.n} students with commits (includes this student). Lower gaps are better.</div>`;
+}
+
+// ── BAR CHARTS (commits per week, time of day) ────────────────────────────────
+function barChart({ items, labelStep }) {
+  const W = 680, H = 130, L = 34, R = 12, T = 12, B = 22;
+  const n = items.length;
+  const maxV = Math.max(1, ...items.map(i => i.v));
+  const slot = (W - L - R) / n;
+  const bw = Math.max(2, Math.min(28, slot * 0.7));
+  const yAt = v => T + (1 - v / maxV) * (H - T - B);
+  const ticks = maxV >= 4 ? [0, Math.round(maxV / 2), maxV] : [0, maxV];
+  const grid = [...new Set(ticks)].map(v =>
+    `<line class="hist-grid" x1="${L}" x2="${W - R}" y1="${yAt(v).toFixed(1)}" y2="${yAt(v).toFixed(1)}"/>` +
+    `<text class="hist-axis" x="${L - 6}" y="${(yAt(v) + 3).toFixed(1)}" text-anchor="end">${v}</text>`
+  ).join('');
+  const bars = items.map((it, i) => {
+    const x = L + i * slot + (slot - bw) / 2;
+    const y = yAt(it.v);
+    const label = i % labelStep === 0
+      ? `<text class="hist-axis" x="${(x + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${it.xl}</text>` : '';
+    return `<g><rect class="hist-hit" x="${(L + i * slot).toFixed(1)}" y="${T}" width="${slot.toFixed(1)}" height="${H - B - T}"><title>${it.title}</title></rect>` +
+           `<rect class="hist-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, H - B - y).toFixed(1)}" pointer-events="none"/>${label}</g>`;
+  }).join('');
+  return `<svg class="hist-chart" viewBox="0 0 ${W} ${H}" role="img">${grid}${bars}</svg>`;
+}
+
+// Per-week commits. Uses student.daily_commits ({ "YYYY-MM-DD": count }) when
+// present; otherwise falls back to active days per week from active_days.
+function buildWeeklyChart(s, nums, today) {
+  const dc = s.daily_commits && typeof s.daily_commits === 'object' ? s.daily_commits : null;
+  const perWeek = new Map();
+  if (dc) {
+    for (const [k, c] of Object.entries(dc)) {
+      const w = weekStartNum(dayNum(k));
+      perWeek.set(w, (perWeek.get(w) || 0) + (Number(c) || 0));
+    }
+  } else {
+    nums.forEach(n => { const w = weekStartNum(n); perWeek.set(w, (perWeek.get(w) || 0) + 1); });
+  }
+  const noun = dc ? 'commit' : 'active day';
+  const lastW = weekStartNum(today);
+  const startW = Math.max(weekStartNum(nums[0]), lastW - 7 * 51);  // at most 52 weeks
+  const items = [];
+  for (let w = startW; w <= lastW; w += 7) {
+    const v = perWeek.get(w) || 0;
+    items.push({
+      v, xl: fmtDayNum(w),
+      title: `Week of ${fmtDayNum(w, true)}: ${v} ${noun}${v !== 1 ? 's' : ''}`
+    });
+  }
+  const chart = barChart({ items, labelStep: Math.ceil(items.length / 8) });
+  const note = dc ? '' :
+    '<div class="hist-compare-note">Showing active days per week. Add per-day commit counts as <code>daily_commits</code> in data.json to show commits.</div>';
+  return { title: dc ? 'Commits per week' : 'Active days per week', html: chart + note };
+}
+
+// Time-of-day histogram from student.commit_hours (array of 24 counts,
+// index = hour 0–23 in whatever timezone the data generator used).
+function buildHourChart(s) {
+  const h = s.commit_hours;
+  const valid = Array.isArray(h) && h.length === 24 && h.every(v => Number.isFinite(v)) && h.some(v => v > 0);
+  if (!valid) {
+    return '<p class="modal-note">No time-of-day data. Add <code>commit_hours</code> (24 counts, hour 0–23) to this student in data.json.</p>';
+  }
+  const total = h.reduce((a, b) => a + b, 0);
+  const peak = h.indexOf(Math.max(...h));
+  const night = [22, 23, 0, 1, 2, 3, 4, 5].reduce((a, i) => a + h[i], 0);
+  const pad = n => String(n).padStart(2, '0');
+  const items = h.map((v, i) => ({
+    v, xl: pad(i),
+    title: `${pad(i)}:00–${pad(i)}:59: ${v} commit${v !== 1 ? 's' : ''}`
+  }));
+  return barChart({ items, labelStep: 3 }) +
+    `<div class="hist-compare-note">Peak hour ${pad(peak)}:00 · ${Math.round(night / total * 100)}% of commits between 22:00 and 06:00 · ${total} commits with timestamps</div>`;
+}
+
 function openHistory(s) {
   const H = getTeamHistory();
   const nums = H.nums.get(s) || activeDayNums(s);
@@ -1715,14 +1858,22 @@ function openHistory(s) {
         })
       : '<p class="modal-note">Rank history needs at least two students.</p>';
 
+    const weekly = buildWeeklyChart(s, nums, today);
+
     body.innerHTML = `
       <div class="hist-stats">${cards}</div>
+      <div class="hist-section-title">Compared with team median</div>
+      ${buildComparison(s, st, score)}
       <div class="hist-section-title">Commit history · ${fmtDayNum(st.first, true)} to today</div>
       ${buildCalendar(nums, today)}
+      <div class="hist-section-title">${weekly.title}</div>
+      ${weekly.html}
       <div class="hist-section-title">Score over time</div>
       ${scoreChart}
       <div class="hist-section-title">Rank over time (1 = top)</div>
       ${rankChart}
+      <div class="hist-section-title">Time of day</div>
+      ${buildHourChart(s)}
       <div class="hist-note">Score and rank history is reconstructed from commit dates at weekly intervals
       (trailing ${HISTORY_WINDOW_DAYS}-day window, same scoring rules); the last point is the live value.
       Ties in past weeks share the better rank.</div>`;
