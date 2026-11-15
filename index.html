@@ -467,11 +467,26 @@
       flex: 1 1 200px;
       min-width: 0;
       align-self: stretch;
-      max-height: 160px;
-      overflow-y: auto;
       border-left: 1px solid var(--border);
       padding-left: 1.25rem;
     }
+
+    /* Same height as the milestone ticker; only the list inside scrolls,
+       the "Alerts" title stays put. */
+    .alerts-viewport {
+      height: 120px;
+      overflow: hidden;
+    }
+
+    /* Applied by JS only when the alerts overflow the viewport. The bottom
+       padding equals the flex gap so the duplicated list loops seamlessly
+       at translateY(-50%). */
+    .alerts-viewport .alert-list.scrolling {
+      padding-bottom: 6px;
+      animation: tickerScroll linear infinite;
+    }
+
+    .alerts-viewport:hover .alert-list.scrolling { animation-play-state: paused; }
 
     .alerts-panel-title {
       font-family: 'JetBrains Mono', monospace;
@@ -710,7 +725,9 @@
         </div>
         <div class="alerts-panel">
           <div class="alerts-panel-title">Alerts</div>
-          <div class="alert-list" id="alerts"></div>
+          <div class="alerts-viewport">
+            <div class="alert-list" id="alerts"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1311,6 +1328,34 @@ function buildAlerts(students) {
   });
 }
 
+// Scrolls the alert list vertically (like the milestone ticker) when it is
+// taller than its viewport. Must run while #app is visible, otherwise
+// heights measure as 0. Rebuilds the list first so it never double-clones.
+const ALERT_SCROLL_PX_PER_SEC = 20;
+
+function renderAlerts() {
+  if (!DATA) return;
+  buildAlerts(DATA.students);
+  const list = document.getElementById('alerts');
+  const viewport = list.parentElement;
+  list.classList.remove('scrolling');
+  list.style.animationDuration = '';
+
+  const contentHeight = list.scrollHeight;
+  if (contentHeight <= viewport.clientHeight) return;
+
+  Array.from(list.children).forEach(c => list.appendChild(c.cloneNode(true)));
+  list.classList.add('scrolling');
+  list.style.animationDuration =
+    `${Math.max(8, (contentHeight + 6) / ALERT_SCROLL_PX_PER_SEC)}s`;
+}
+
+let alertResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(alertResizeTimer);
+  alertResizeTimer = setTimeout(renderAlerts, 150);
+});
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 
 async function init() {
@@ -1339,6 +1384,7 @@ async function init() {
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    renderAlerts();
   } catch (e) {
     document.getElementById('loading').textContent =
       `Could not load data.json — ${e.message}. Has the GitHub Action run yet?`;
