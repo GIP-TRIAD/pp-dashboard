@@ -175,7 +175,7 @@
 
     /* ── MILESTONE TICKER ── */
     .milestone-ticker {
-      flex: 1;
+      flex: 0 0 150px;
       min-width: 120px;
       height: 120px;
       overflow: hidden;
@@ -462,6 +462,52 @@
     .alert-days-danger { color: var(--danger); min-width: 64px; }
     .alert-who { color: var(--muted); }
 
+    /* ── ALERTS PANEL (top panel, right of the ticker) ── */
+    .alerts-panel {
+      flex: 1 1 200px;
+      min-width: 0;
+      align-self: stretch;
+      max-height: 160px;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      padding-left: 1.25rem;
+    }
+
+    .alerts-panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .alerts-panel .alert-row {
+      flex-wrap: wrap;
+      gap: 2px 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .alerts-panel .alert-days-warn,
+    .alerts-panel .alert-days-danger { min-width: 0; }
+
+    .alerts-panel .alert-msg { flex-basis: 100%; font-size: 11px; }
+
+    .alerts-panel .all-good { padding: 0; }
+
+    @media (max-width: 760px) {
+      .heatmap-wrap { flex-wrap: wrap; }
+      .alerts-panel {
+        flex-basis: 100%;
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+      }
+    }
+
     .all-good {
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
@@ -662,6 +708,10 @@
         <div class="milestone-ticker" id="milestone-ticker">
           <div class="ticker-inner" id="ticker-inner"></div>
         </div>
+        <div class="alerts-panel">
+          <div class="alerts-panel-title">Alerts</div>
+          <div class="alert-list" id="alerts"></div>
+        </div>
       </div>
     </div>
 
@@ -674,11 +724,6 @@
     <div class="section">
       <div class="section-title">Highlights</div>
       <div class="badges" id="badges"></div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Alerts</div>
-      <div class="alert-list" id="alerts"></div>
     </div>
 
   </main>
@@ -1260,7 +1305,7 @@ function buildAlerts(students) {
     row.innerHTML = `
       <span class="${isDanger ? 'alert-days-danger' : 'alert-days-warn'}">${d}d ago</span>
       <span class="alert-who">${nameHtml}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${isDanger ? 'var(--danger)' : 'var(--muted)'}">${msg}</span>
+      <span class="alert-msg" style="font-family:'JetBrains Mono',monospace;color:${isDanger ? 'var(--danger)' : 'var(--muted)'}">${msg}</span>
     `;
     el.appendChild(row);
   });
