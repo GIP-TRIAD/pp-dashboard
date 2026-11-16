@@ -1641,6 +1641,16 @@ function studentStats(s, nums, today) {
     longestGap = Math.max(longestGap, g);
     gapSum += g;
   }
+  // The silence from the last commit until today is a gap too. Without it, a
+  // student who committed twice and then stopped would show excellent gap
+  // stats. Same convention as calcAvgGap() in fetch-commits.js.
+  let gapCount = nums.length - 1;
+  const ongoing = today - last;
+  if (ongoing > 0) {
+    longestGap = Math.max(longestGap, ongoing);
+    gapSum += ongoing;
+    gapCount++;
+  }
   const weekdays = Array(7).fill(0);
   nums.forEach(n => weekdays[(n + 3) % 7]++);
   const bestDay = weekdays.indexOf(Math.max(...weekdays));
@@ -1654,8 +1664,8 @@ function studentStats(s, nums, today) {
     activeWeeks, totalWeeks,
     weekPct: Math.round(activeWeeks / totalWeeks * 100),
     longestRun,
-    longestGap: nums.length > 1 ? longestGap : null,
-    avgGap: nums.length > 1 ? gapSum / (nums.length - 1) : null,
+    longestGap: gapCount > 0 ? longestGap : null,
+    avgGap: gapCount > 0 ? gapSum / gapCount : null,
     bestDay: WEEKDAY_NAMES[bestDay],
     bestDayCount: weekdays[bestDay]
   };
@@ -1724,7 +1734,7 @@ function buildComparison(s, st, score) {
   return `<table class="modal-table">
       <thead><tr><th>Metric</th><th>This student</th><th>Team median</th><th>Difference</th></tr></thead>
       <tbody>${rows}</tbody></table>
-    <div class="hist-compare-note">Median of ${M.n} students with commits (includes this student). Lower gaps are better.</div>`;
+    <div class="hist-compare-note">Median of ${M.n} students with commits (includes this student). Lower gaps are better; gaps include the time since each student's last commit.</div>`;
 }
 
 // ── BAR CHARTS (commits per week, time of day) ────────────────────────────────
@@ -1835,8 +1845,8 @@ function openHistory(s) {
         s.total_commits ? `${(s.total_commits / st.activeDays).toFixed(1)} per active day` : ''),
       statCard('Active weeks', `${st.activeWeeks} / ${st.totalWeeks}`, `${st.weekPct}% of weeks`),
       statCard('Longest run', `${st.longestRun}d`, 'consecutive days'),
-      statCard('Longest gap', st.longestGap === null ? '—' : `${st.longestGap}d`, 'between commits'),
-      statCard('Average gap', st.avgGap === null ? '—' : `${st.avgGap.toFixed(1)}d`, 'between commits'),
+      statCard('Longest gap', st.longestGap === null ? '—' : `${st.longestGap}d`, 'incl. since last commit'),
+      statCard('Average gap', st.avgGap === null ? '—' : `${st.avgGap.toFixed(1)}d`, 'incl. since last commit'),
       statCard('Busiest weekday', st.bestDay, `${st.bestDayCount} active day${st.bestDayCount !== 1 ? 's' : ''}`)
     ].join('');
 
