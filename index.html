@@ -905,6 +905,16 @@
         </tbody>
       </table>
 
+      <h3>4. How ties are broken</h3>
+      <p>When two students have the same score, the ranking is decided by the following criteria, in this order. The first one that differs settles it. The number of commits is never used.</p>
+      <ul class="modal-list">
+        <li><strong>1. Average gap</strong> — lower is better. Counts the time since your last commit as a gap too.</li>
+        <li><strong>2. Longest gap</strong> — lower is better. Also includes the time since your last commit.</li>
+        <li><strong>3. Days since last commit</strong> — fewer is better.</li>
+        <li><strong>4. Name</strong> — alphabetical order, only if everything above is equal.</li>
+      </ul>
+      <p class="modal-note">The "ranked by …" label under a name shows which criterion separated that student from the one ranked just below.</p>
+
     </div>
   </div>
 </div>
@@ -1110,20 +1120,59 @@ function recentMilestones(students) {
 
 // ── SORTING ───────────────────────────────────────────────────────────────────
 
+// Ranking = score (higher first), then these tie-breakers in order, none of
+// which depend on commit counts:
+//   1. average gap (lower)   — includes the silence since the last commit
+//   2. longest gap (lower)   — includes the silence since the last commit
+//   3. days since last commit (lower)
+//   4. name, alphabetical    — only when everything above is equal
+// Students with no commits sort after everyone else on criteria 1–3.
+const _tiebreakCache = new WeakMap();
+function tiebreakKeys(s) {
+  let k = _tiebreakCache.get(s);
+  if (k) return k;
+  const nums = activeDayNums(s);
+  if (!nums.length) {
+    k = { avg: Infinity, longest: Infinity, since: Infinity };
+  } else {
+    let longest = todayNum() - nums[nums.length - 1];
+    for (let i = 1; i < nums.length; i++) longest = Math.max(longest, nums[i] - nums[i - 1]);
+    k = { avg: s.avg_gap, longest, since: s.days_since_last };
+  }
+  _tiebreakCache.set(s, k);
+  return k;
+}
+
+const TIEBREAKS = [
+  { label: 'avg gap',     get: k => k.avg },
+  { label: 'longest gap', get: k => k.longest },
+  { label: 'last commit', get: k => k.since }
+];
+
+function compareTiebreaks(a, b) {
+  const ka = tiebreakKeys(a), kb = tiebreakKeys(b);
+  for (const t of TIEBREAKS) {
+    const x = t.get(ka), y = t.get(kb);
+    if (x !== y) return x < y ? -1 : 1;
+  }
+  return a.name.localeCompare(b.name);
+}
+
 function sortStudents(students) {
   return [...students].sort((a, b) => {
     const sa = calcScore(a), sb = calcScore(b);
     if (sb !== sa) return sb - sa;
-    if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
-    if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
-    return a.avg_gap - b.avg_gap;
+    return compareTiebreaks(a, b);
   });
 }
 
+// Label of the first criterion that separates two students with equal scores.
 function tiebreakReason(a, b) {
-  if (a.current_streak !== b.current_streak) return 'streak';
-  if (a.commits_30 !== b.commits_30) return 'commits (30d)';
-  return 'avg gap';
+  const ka = tiebreakKeys(a), kb = tiebreakKeys(b);
+  for (const t of TIEBREAKS) {
+    if (t.get(ka) !== t.get(kb)) return t.label;
+  }
+  return 'alphabetical order';
 }
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
@@ -1388,25 +1437,23 @@ function buildBadges(students) {
   const valid = students.filter(s => !s.error);
   if (!valid.length) return;
 
-  // Reuse the same tiebreak chain as the leaderboard (score → streak →
-  // commits_30 → avg_gap) so "Top score" agrees with whoever actually sits
+  // Reuse the same tiebreak chain as the leaderboard (score → avg gap →
+  // longest gap → last commit → name) so "Top score" agrees with whoever sits
   // at #1 on the board — a bare sort on score alone leaves ties broken by
   // original array order (i.e. config.json order), not merit.
   const scored  = valid.map(s => ({ ...s, score: calcScore(s) }));
   const byScore = sortStudents(scored)[0];
 
   // Same problem for streak: a plain sort on current_streak alone lets ties
-  // fall back to array order. Break ties the same way tiebreakReason() does
-  // elsewhere — more commits in the window wins, then tighter avg gap.
+  // fall back to array order. Ties use the leaderboard's tie-breakers.
   const byStreak = [...valid]
     .filter(s => s.current_streak >= 2)
     .sort((a, b) => {
       if (b.current_streak !== a.current_streak) return b.current_streak - a.current_streak;
-      if (b.commits_30 !== a.commits_30) return b.commits_30 - a.commits_30;
-      return a.avg_gap - b.avg_gap;
+      return compareTiebreaks(a, b);  // avg gap → longest gap → last commit → name
     })[0];
 
-  const byGap    = [...valid].filter(s => s.avg_gap > 0).sort((a, b) => a.avg_gap - b.avg_gap)[0];
+  const byGap    = [...valid].filter(s => s.avg_gap > 0).sort(compareTiebreaks)[0];
 
   const badges = [
     { label: 'Top score',      name: byScore.name,  val: `${byScore.score} pts`, url: byScore.repo_url },
