@@ -238,17 +238,47 @@
     }
 
     .rank-row:hover { border-color: var(--bhover); }
-    .rank-row.rank-1 { border-color: var(--accent); }
-    .rank-row.rank-1 .rank-num { color: var(--accent); }
-    .rank-row.rank-1 .score-val { color: var(--accent); }
+    .rank-row.rank-1 { position: relative; border-color: transparent; }
+    .rank-row.rank-1 .rank-num { color: var(--warn); }
+    .rank-row.rank-1 .score-val { color: var(--warn); }
 
+    /* On a roll: green border, no glow. */
     .rank-row.on-a-roll-row {
-      border-color: var(--warn);
-      box-shadow: 0 0 0 1px var(--warn), 0 0 12px 0 color-mix(in srgb, var(--warn) 35%, transparent);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
     }
 
-    .rank-row.on-a-roll-row:hover {
-      box-shadow: 0 0 0 1px var(--warn), 0 0 18px 0 color-mix(in srgb, var(--warn) 45%, transparent);
+    /* #1: a multi-color warm gradient ring that runs around the panel.
+       The ring is a ::before layer whose conic-gradient start angle is
+       animated (via a registered custom property), masked down to a 2px
+       border. Where @property is unsupported the ring is static. */
+    @property --rank-angle {
+      syntax: '<angle>';
+      inherits: false;
+      initial-value: 0deg;
+    }
+
+    @keyframes rankSpin {
+      to { --rank-angle: 360deg; }
+    }
+
+    .rank-row.rank-1::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      box-sizing: border-box;
+      padding: 2px;
+      border-radius: inherit;
+      /* Continuous ring (no gaps) cycling through clearly distinct warm hues:
+         red → orange → yellow → hot pink → red. */
+      background: conic-gradient(from var(--rank-angle),
+        #ff1744, #ff7a00, #ffd600, #ff2d95, #ff1744);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+      animation: rankSpin 3.5s linear infinite;
     }
 
     .rank-num {
@@ -323,8 +353,8 @@
       display: inline-block;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      color: var(--warn);
-      border: 1px solid var(--warn);
+      color: var(--accent);
+      border: 1px solid var(--accent);
       border-radius: 3px;
       padding: 1px 5px;
       margin-left: 6px;
