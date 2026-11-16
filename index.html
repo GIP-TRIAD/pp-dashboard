@@ -1693,16 +1693,23 @@ function getTeamMedians() {
   const rows = H.valid
     .filter(s => H.nums.get(s).length)
     .map(s => ({ s, st: studentStats(s, H.nums.get(s), today), score: calcScore(s) }));
-  const pick = f => median(rows.map(f).filter(v => v !== null && v !== undefined && !isNaN(v)));
-  TEAM_MEDIANS = {
-    n: rows.length,
-    score:      pick(r => r.score),
-    activeDays: pick(r => r.st.activeDays),
-    activePct:  pick(r => r.st.activePct),
-    commits30:  pick(r => r.s.commits_30),
-    avgGap:     pick(r => r.st.avgGap),
-    longestGap: pick(r => r.st.longestGap)
+  const collect = f => rows.map(f).filter(v => v !== null && v !== undefined && !isNaN(v));
+  const fields = {
+    score:      r => r.score,
+    activeDays: r => r.st.activeDays,
+    activePct:  r => r.st.activePct,
+    commits30:  r => r.s.commits_30,
+    avgGap:     r => r.st.avgGap,
+    longestGap: r => r.st.longestGap
   };
+  // vals[key] = every student's value for that metric (used for medians and ranks)
+  const vals = {};
+  const med = {};
+  for (const [key, f] of Object.entries(fields)) {
+    vals[key] = collect(f);
+    med[key] = median(vals[key]);
+  }
+  TEAM_MEDIANS = { n: rows.length, vals, ...med };
   return TEAM_MEDIANS;
 }
 
@@ -1710,17 +1717,29 @@ function buildComparison(s, st, score) {
   const M = getTeamMedians();
   if (M.n < 2) return '<p class="modal-note">Comparison needs at least two students with commits.</p>';
   const defs = [
-    { label: 'Score',            v: score,          m: M.score,      hi: true,  dec: 0, unit: '' },
-    { label: 'Active days',      v: st.activeDays,  m: M.activeDays, hi: true,  dec: 0, unit: '' },
-    { label: 'Active-day share', v: st.activePct,   m: M.activePct,  hi: true,  dec: 0, unit: '%' },
-    { label: 'Commits (30d)',    v: s.commits_30,   m: M.commits30,  hi: true,  dec: 0, unit: '' },
-    { label: 'Average gap',      v: st.avgGap,      m: M.avgGap,     hi: false, dec: 1, unit: 'd' },
-    { label: 'Longest gap',      v: st.longestGap,  m: M.longestGap, hi: false, dec: 0, unit: 'd' }
+    { key: 'score',      label: 'Score',            v: score,          m: M.score,      hi: true,  dec: 0, unit: '' },
+    { key: 'activeDays', label: 'Active days',      v: st.activeDays,  m: M.activeDays, hi: true,  dec: 0, unit: '' },
+    { key: 'activePct',  label: 'Active-day share', v: st.activePct,   m: M.activePct,  hi: true,  dec: 0, unit: '%' },
+    { key: 'commits30',  label: 'Commits (30d)',    v: s.commits_30,   m: M.commits30,  hi: true,  dec: 0, unit: '' },
+    { key: 'avgGap',     label: 'Average gap',      v: st.avgGap,      m: M.avgGap,     hi: false, dec: 1, unit: 'd' },
+    { key: 'longestGap', label: 'Longest gap',      v: st.longestGap,  m: M.longestGap, hi: false, dec: 0, unit: 'd' }
   ];
+  // Competition ranking on displayed precision: 1 + number of students strictly
+  // better; equal values share the better rank (marked "tied").
+  const rankOf = d => {
+    const r = x => +x.toFixed(d.dec);
+    const all = M.vals[d.key];
+    const mine = r(d.v);
+    const better = all.filter(o => d.hi ? r(o) > mine : r(o) < mine).length;
+    const same = all.filter(o => r(o) === mine).length;
+    return { rank: better + 1, total: all.length, tied: same > 1 };
+  };
   const rows = defs.map(d => {
     if (d.v == null || d.m == null) {
-      return `<tr><td>${d.label}</td><td>—</td><td>${d.m == null ? '—' : +d.m.toFixed(d.dec) + d.unit}</td><td>—</td></tr>`;
+      return `<tr><td>${d.label}</td><td>—</td><td>${d.m == null ? '—' : +d.m.toFixed(d.dec) + d.unit}</td><td>—</td><td>—</td></tr>`;
     }
+    const rk = rankOf(d);
+    const rankCell = `<td class="${rk.rank === 1 ? 'ok' : ''}">${rk.rank} / ${rk.total}${rk.tied ? ' tied' : ''}</td>`;
     const diff = d.v - d.m;
     let cls = '', txt = 'at median';
     if (Math.abs(diff) >= Math.pow(10, -d.dec) / 2) {
@@ -1729,12 +1748,12 @@ function buildComparison(s, st, score) {
       txt = `${diff > 0 ? '+' : '−'}${Math.abs(diff).toFixed(d.dec)}${d.unit} · ${good ? 'better' : 'worse'}`;
     }
     return `<tr><td>${d.label}</td><td>${+d.v.toFixed(d.dec)}${d.unit}</td>` +
-           `<td>${+d.m.toFixed(d.dec)}${d.unit}</td><td class="${cls}">${txt}</td></tr>`;
+           `<td>${+d.m.toFixed(d.dec)}${d.unit}</td><td class="${cls}">${txt}</td>${rankCell}</tr>`;
   }).join('');
   return `<table class="modal-table">
-      <thead><tr><th>Metric</th><th>This student</th><th>Team median</th><th>Difference</th></tr></thead>
+      <thead><tr><th>Metric</th><th>This student</th><th>Team median</th><th>Difference</th><th>Rank</th></tr></thead>
       <tbody>${rows}</tbody></table>
-    <div class="hist-compare-note">Median of ${M.n} students with commits (includes this student). Lower gaps are better; gaps include the time since each student's last commit.</div>`;
+    <div class="hist-compare-note">Median of ${M.n} students with commits (includes this student). Rank 1 = best (for gaps, the lowest); ties share the better rank. Gaps include the time since each student's last commit.</div>`;
 }
 
 // ── BAR CHARTS (commits per week, time of day) ────────────────────────────────
