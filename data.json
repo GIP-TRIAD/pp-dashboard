@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T23:24:28.291Z",
+  "generated_at": "2026-11-26T23:23:51.943Z",
   "title": "Professional Project Writing Dashboard",
   "semester": "2026-2027",
   "students": [
@@ -16,7 +16,8 @@
         "2026-10-28",
         "2026-11-03",
         "2026-11-10",
-        "2026-11-18"
+        "2026-11-18",
+        "2026-11-26"
       ],
       "gaps": [
         1,
@@ -26,17 +27,14 @@
         19,
         6,
         7,
+        8,
         8
       ],
-      "avg_gap": 8.6,
-      "current_streak": 0,
-      "commits_30": 4,
-      "total_commits": 10,
+      "avg_gap": 8.7,
+      "current_streak": 1,
+      "commits_30": 6,
+      "total_commits": 12,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 1
@@ -152,11 +150,16 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 2
         }
       ],
-      "last_commit": "2026-11-18",
-      "days_since_last": 7,
+      "last_commit": "2026-11-26",
+      "days_since_last": 0,
       "daily_commits": {
+        "2026-11-26": 2,
         "2026-11-18": 1,
         "2026-11-10": 1,
         "2026-11-03": 1,
@@ -183,8 +186,8 @@
         0,
         1,
         0,
-        0,
-        0,
+        1,
+        1,
         0,
         0,
         0,
@@ -215,7 +218,8 @@
         "2026-11-14",
         "2026-11-17",
         "2026-11-21",
-        "2026-11-22"
+        "2026-11-22",
+        "2026-11-26"
       ],
       "gaps": [
         12,
@@ -233,17 +237,14 @@
         2,
         3,
         4,
-        1
+        1,
+        4
       ],
-      "avg_gap": 4.5,
-      "current_streak": 0,
-      "commits_30": 12,
-      "total_commits": 22,
+      "avg_gap": 4.6,
+      "current_streak": 1,
+      "commits_30": 13,
+      "total_commits": 23,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 1
@@ -359,11 +360,16 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 1
         }
       ],
-      "last_commit": "2026-11-22",
-      "days_since_last": 3,
+      "last_commit": "2026-11-26",
+      "days_since_last": 0,
       "daily_commits": {
+        "2026-11-26": 1,
         "2026-11-22": 1,
         "2026-11-21": 1,
         "2026-11-17": 1,
@@ -394,7 +400,7 @@
         0,
         0,
         0,
-        0,
+        1,
         1,
         1,
         0,
@@ -458,15 +464,11 @@
         11,
         1
       ],
-      "avg_gap": 3.8,
-      "current_streak": 2,
+      "avg_gap": 3.7,
+      "current_streak": 0,
       "commits_30": 7,
       "total_commits": 23,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -582,10 +584,14 @@
         {
           "date": "2026-11-25",
           "count": 1
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-25",
-      "days_since_last": 0,
+      "days_since_last": 1,
       "daily_commits": {
         "2026-11-25": 1,
         "2026-11-24": 1,
@@ -653,15 +659,11 @@
         9,
         3
       ],
-      "avg_gap": 15.6,
+      "avg_gap": 15.8,
       "current_streak": 0,
       "commits_30": 0,
       "total_commits": 6,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -777,10 +779,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-09-23",
-      "days_since_last": 63,
+      "days_since_last": 64,
       "daily_commits": {
         "2026-09-23": 2,
         "2026-09-20": 1,
@@ -834,15 +840,11 @@
         45,
         1
       ],
-      "avg_gap": 12,
+      "avg_gap": 12.2,
       "current_streak": 0,
       "commits_30": 2,
       "total_commits": 7,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -958,10 +960,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-16",
-      "days_since_last": 9,
+      "days_since_last": 10,
       "daily_commits": {
         "2026-11-16": 1,
         "2026-11-15": 1,
@@ -1024,15 +1030,11 @@
         5,
         6
       ],
-      "avg_gap": 7.7,
+      "avg_gap": 7.8,
       "current_streak": 0,
       "commits_30": 19,
       "total_commits": 42,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 5
@@ -1148,10 +1150,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-21",
-      "days_since_last": 4,
+      "days_since_last": 5,
       "daily_commits": {
         "2026-11-21": 6,
         "2026-11-15": 5,
@@ -1226,15 +1232,11 @@
         3,
         2
       ],
-      "avg_gap": 6,
-      "current_streak": 1,
+      "avg_gap": 5.6,
+      "current_streak": 0,
       "commits_30": 9,
       "total_commits": 19,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -1350,10 +1352,14 @@
         {
           "date": "2026-11-25",
           "count": 1
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-25",
-      "days_since_last": 0,
+      "days_since_last": 1,
       "daily_commits": {
         "2026-11-25": 1,
         "2026-11-23": 2,
@@ -1426,15 +1432,11 @@
         17,
         8
       ],
-      "avg_gap": 7,
+      "avg_gap": 7.1,
       "current_streak": 0,
       "commits_30": 2,
       "total_commits": 14,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -1550,10 +1552,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-20",
-      "days_since_last": 5,
+      "days_since_last": 6,
       "daily_commits": {
         "2026-11-20": 1,
         "2026-11-12": 1,
@@ -1617,15 +1623,11 @@
         7,
         9
       ],
-      "avg_gap": 9.6,
+      "avg_gap": 9.8,
       "current_streak": 0,
       "commits_30": 3,
       "total_commits": 8,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -1741,10 +1743,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-16",
-      "days_since_last": 9,
+      "days_since_last": 10,
       "daily_commits": {
         "2026-11-16": 1,
         "2026-11-07": 1,
@@ -1799,15 +1805,11 @@
         35,
         30
       ],
-      "avg_gap": 15.6,
+      "avg_gap": 15.8,
       "current_streak": 0,
       "commits_30": 6,
       "total_commits": 14,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -1923,10 +1925,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-20",
-      "days_since_last": 5,
+      "days_since_last": 6,
       "daily_commits": {
         "2026-11-20": 6,
         "2026-10-21": 2,
@@ -1994,15 +2000,11 @@
         3,
         8
       ],
-      "avg_gap": 5.8,
+      "avg_gap": 5.9,
       "current_streak": 0,
       "commits_30": 11,
       "total_commits": 15,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 0
@@ -2118,10 +2120,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-20",
-      "days_since_last": 5,
+      "days_since_last": 6,
       "daily_commits": {
         "2026-11-20": 1,
         "2026-11-12": 1,
@@ -2191,15 +2197,11 @@
         1,
         1
       ],
-      "avg_gap": 7.5,
+      "avg_gap": 7.6,
       "current_streak": 0,
       "commits_30": 7,
       "total_commits": 12,
       "last30": [
-        {
-          "date": "2026-10-27",
-          "count": 0
-        },
         {
           "date": "2026-10-28",
           "count": 1
@@ -2315,10 +2317,14 @@
         {
           "date": "2026-11-25",
           "count": 0
+        },
+        {
+          "date": "2026-11-26",
+          "count": 0
         }
       ],
       "last_commit": "2026-11-22",
-      "days_since_last": 3,
+      "days_since_last": 4,
       "daily_commits": {
         "2026-11-22": 2,
         "2026-11-21": 1,
